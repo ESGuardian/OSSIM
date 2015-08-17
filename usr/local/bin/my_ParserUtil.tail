@@ -1,0 +1,29 @@
+# my ParserUtil tail
+
+UNWANTED_URLS=[]
+with open("/etc/my_ossim/unwanted_urls.list","r") as f:
+    UNWANTED_URLS=[line.rstrip() for line in f]
+f.close()
+
+def my_tmg_web_sid(bsent=0, breceived=0, url='0', uri=''):
+    if 'Microsoft-Server-ActiveSync' in uri and 'Cmd=Sync' in uri:
+        sid=2
+        return sid
+    sid = 1
+    if 'in-bank.ru' in url:
+        return sid
+    bsent = int(bsent)
+    breceived = int (breceived)
+    if bsent > 1000000:
+        return 2000
+    if bsent > breceived:
+        sid = sid + 10
+    if bsent > 200000: 
+        sid = sid + 100
+    for elem in UNWANTED_URLS:
+        dot_elem="."+elem
+        if elem == url or dot_elem in url:
+           sid = sid + 1000
+           break
+    return sid
+

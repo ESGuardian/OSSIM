@@ -1,0 +1,18 @@
+/var/log/ilo.log /var/log/ilo-access.log{
+    daily
+    rotate 365
+    compress
+    missingok
+    notifempty
+    copytruncate
+    create 640 avapi alienvault
+}
+/var/log/tmg-fws.log /var/log/tmg-web.log{
+    daily
+    rotate 365
+    compress
+    missingok
+    notifempty
+    copytruncate
+    create 640 avapi alienvault
+}
