@@ -67,21 +67,34 @@ what="convert_tz(timestamp,'+00:00'," + mytz +") as time, substring_index(substr
 where="acid_event.plugin_id=1636 and acid_event.plugin_sid=722051"
 select="select  " + what + " where " + where + " and " + when + " order by time"
 cursor.execute(select)
+#
+# Так уж вышло, что Cisco-ASA почему-то дублирует в логе нужные мне события.
+# Вслед за ней и стандартный плагин дублирует их в базу.
+# По этой причине будем устранять "дубли" при подготовке отчета
+#
+duble_stime = ""
+duble_source = ""
+duble_username = ""
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row: 
          stime = str(row[0]).decode(dbcharset).strip()
          source = str(row[1]).decode(dbcharset).strip()
-         response = reader.city(source)
-         place =  response.city.name
-         if place is None:
-             place = response.country.name
-         splace = str(place).strip()
          username = str(row[2]).decode(dbcharset).strip()
-         local_ip = str(row[3]).decode(dbcharset).strip()
-         outstr = stime + ';' + source + ';' + splace + ';' + username + ';' + local_ip + '\n'
-         out.write(outstr)
+         if duble_stime != stime or duble_source != source or duble_username != username:
+             duble_stime = stime
+             duble_source = source
+             duble_username = username
+             response = reader.city(source)
+             place =  response.city.name
+             if place is None:
+                 place = response.country.name
+             splace = str(place).strip()
+#             username = str(row[2]).decode(dbcharset).strip()
+             local_ip = str(row[3]).decode(dbcharset).strip()
+             outstr = stime + ';' + source + ';' + splace + ';' + username + ';' + local_ip + '\n'
+             out.write(outstr)
          row = cursor.fetchone()
 out.close()
 
