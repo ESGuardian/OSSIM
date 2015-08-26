@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: cp1251 -*-
 # author Eugene Sokolov esguardian@outlook.com
-# version 1.0.1 
+# version 1.0.2 + данные geoip 
 # команда: 
 # idsrep.py number host_group_name
 # где: 
@@ -23,6 +23,7 @@ import MySQLdb
 import codecs
 import subprocess
 from datetime import date, timedelta
+import geoip2.database
 from OSSIM_helper import get_db_connection_data
 
 
@@ -80,7 +81,7 @@ conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbschema, cha
 cursor = conn.cursor() 
 
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
-
+reader=geoip2.database.Reader("/usr/share/geoip/GeoLite2-City.mmdb")
 # ---- End of Init
 
 # now start
@@ -106,7 +107,7 @@ if asset_group_name != '':
 
 # --- ip addresses collected. continue
 
-colheader='Сигнатура;Время;Источник;Атакуемый хост;Репутация источника\n'.decode(mycharset)
+colheader='Сигнатура;Время;Источник;Место;Атакуемый хост;Репутация источника\n'.decode(mycharset)
 tabheader='\n\nДанные IDS Suricata для группы ностов '.decode(mycharset) + asset_group_name +' за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
 # create and execute SELECT 
 
@@ -134,8 +135,15 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         else:
             rep = str(row[4]).decode(dbcharset) 
         if rep.lower() != 'false':
+            response = reader.city(src)
+            place =  response.city.name
+            if place is None:
+                place = response.country.name
+            if place is None:
+                place = 'Unknown'
             outstr = str(row[1]).decode(dbcharset).replace(';',',').strip()        
             outstr = outstr + ';' + src
+            outstr = outstr + ';' + place
             outstr = outstr + ';' + row[3].strip()
             outstr = outstr + ';' + rep.replace(';',',')
             plugin_sid = str(row[0]).strip() 
@@ -152,7 +160,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     # and now add to the file netflow data for each event but deduplicate
     dup=[]
     for item in list:
-        (time,src,dst,rep)=item.split(';')
+        (time,src,place,dst,rep)=item.split(';')
         if src not in dup:
             dup.append(src)    
             # prepare nfdump command
@@ -160,7 +168,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
             p = subprocess.Popen (nf_dump_cmd, stdout=subprocess.PIPE, shell=True)
             (output,err) = p.communicate()
             p_stutus = p.wait()
-            tabheader = '\nИнформация Netflow для '.decode(mycharset) + src + ' : ' + rep + '\n'
+            tabheader = '\nИнформация Netflow для '.decode(mycharset) + src + ' : ' + place + ' : ' + rep + '\n'
             colheader = 'Время;Период;Протокол;Источник;Получатель;Пакетов;Байт;Потоков\n'.decode(mycharset)
             out.write(tabheader + colheader)
             for line in output.splitlines():
@@ -180,4 +188,5 @@ out.close()
 # --- End of All
 conn.close()
 conn_av.close()
+reader.close()
 
