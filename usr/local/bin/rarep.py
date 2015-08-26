@@ -22,7 +22,7 @@ import codecs
 from datetime import date, timedelta
 # import GeoIP
 import geoip2.database
-from OSSIM_helper import get_db_connection_data, get_place
+from OSSIM_helper import get_db_connection_data
 
 
 # Datababe connection config.
