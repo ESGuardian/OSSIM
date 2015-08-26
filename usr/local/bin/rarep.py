@@ -22,7 +22,7 @@ import codecs
 from datetime import date, timedelta
 # import GeoIP
 import geoip2.database
-from OSSIM_helper import get_db_connection_data
+from OSSIM_helper import get_db_connection_data, get_place
 
 
 # Datababe connection config.
@@ -90,10 +90,10 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
              place =  response.city.name
              if place is None:
                  place = response.country.name
-             splace = str(place).strip()
-#             username = str(row[2]).decode(dbcharset).strip()
+             if place is None:
+                 place = 'Unknown'
              local_ip = str(row[3]).decode(dbcharset).strip()
-             outstr = stime + ';' + source + ';' + splace + ';' + username + ';' + local_ip + '\n'
+             outstr = stime + ';' + source + ';' + place + ';' + username + ';' + local_ip + '\n'
              out.write(outstr)
          row = cursor.fetchone()
 out.close()
@@ -117,7 +117,8 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
          place =  response.city.name
          if place is None:
              place = response.country.name
-         splace = str(place).strip()
+         if place is None:
+             place = 'Unknown'
          username = str(row[1]).decode(dbcharset).strip()
          dev_type = str(row[2]).decode(dbcharset).strip()
          dev_id = str(row[3]).decode(dbcharset).strip()
