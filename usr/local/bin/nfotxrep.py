@@ -93,6 +93,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
                     place = response.country.name
                 if place is None:
                     place = 'Unknown'
+                place = place.encode('utf8').decode(mycharset)
                 outstr = str(row[0]).decode(dbcharset).replace(';',',').strip()
                 outstr = outstr + ';' + str(row[1]).decode(dbcharset).replace(';',',').strip() 
                 outstr = outstr + ';' + dst
