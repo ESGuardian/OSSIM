@@ -92,6 +92,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
                  place = response.country.name
              if place is None:
                  place = 'Unknown'
+             place = place.encode('utf8').decode(mycharset)
              local_ip = str(row[3]).decode(dbcharset).strip()
              outstr = stime + ';' + source + ';' + place + ';' + username + ';' + local_ip + '\n'
              out.write(outstr)
@@ -119,6 +120,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
              place = response.country.name
          if place is None:
              place = 'Unknown'
+         place = place.encode('utf8').decode(mycharset)
          username = str(row[1]).decode(dbcharset).strip()
          dev_type = str(row[2]).decode(dbcharset).strip()
          dev_id = str(row[3]).decode(dbcharset).strip()
