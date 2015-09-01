@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: cp1251 -*-
 # автор esguardian@outlook.com
-# версия 1.0.1
+# версия 1.0.3
 # Отчет об установке приложений на рабочих станциях и серверах 
 # Собирает из базы данные плагина OSSEC о событиях установки Windows/Unix приложений
 # а также данные иониторинга "нежелательных" программ (skype, torrent и т.п.)
@@ -38,7 +38,7 @@ outfullpath='/usr/local/ossim_reports/' + outfilename
 mytz="'+03:00'"
 mycharset='cp1251'
 dbcharset='utf8'
-colheader='Действие;Время;Компьютер;Данные\n'.decode(mycharset)
+colheader=u'Действие;Время;Компьютер;Данные\n'
 
 
 conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbschema, charset='utf8') 
@@ -47,7 +47,7 @@ cursor = conn.cursor()
 # ---- End of Init
 
 # Windows app monitor
-tabheader='\n\nМониторинг программ Windows за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\nМониторинг программ Windows за период ' + startdate + ' - ' + enddate + '\n\n'
 what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]',-1),'[END]',1) from acid_event join extra_data on (id=event_id)"
 where = "acid_event.plugin_id=7093 and acid_event.plugin_sid=514"
 select="select " + what + " where "  + where + " and " + when + " order by time"
@@ -61,7 +61,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # Windows APP install/uninstall
-tabheader = '\n\nУстановка программ Windows за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader = u'\n\nУстановка программ Windows за период ' + startdate + ' - ' + enddate + '\n\n'
 what = "userdata3 as action, convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)) as source, concat('MsiInstaller: ',substring_index(substring_index(substring_index(data_payload,'MsiInstaller: ',-1),'[END]',1),' (NULL)',1)) as info from acid_event join extra_data on id=event_id"
 where = "acid_event.plugin_id=7006 and (acid_event.plugin_sid=18147 or acid_event.plugin_sid=18146)"
 select="select " + what + " where "  + where + " and " + when + " order by time"
@@ -75,7 +75,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # Linux package install
-tabheader='\n\nУстановка пакетов Linux за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\nУстановка пакетов Linux за период ' + startdate + ' - ' + enddate + '\n\n'
 what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]',-1),'[END]',1) from acid_event join extra_data on id=event_id"
 where = "acid_event.plugin_id=7042 and acid_event.plugin_sid=2902"
 select="select " + what + " where "  + where + " and " + when + " order by time"
@@ -89,7 +89,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 #  Integrity checksum changed.
-tabheader='\n\nИзменения контрольных сумм файлов за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\nИзменения контрольных сумм файлов за период ' + startdate + ' - ' + enddate + '\n\n'
 what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]Integrity checksum changed for: ''',-1),'''',1) from acid_event join extra_data on id=event_id"
 where = "acid_event.plugin_id=7094 and (acid_event.plugin_sid=550 or acid_event.plugin_sid=551 or acid_event.plugin_sid=552)"
 select="select " + what + " where "  + where + " and " + when + " order by time"

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: cp1251 -*-
 # автор esguardian@outlook.com
-# версия 1.0.1
+# версия 1.0.3
 # Отчет о событиях удаленного доступа
 # Собирает от стандартного плагина cisco-asa (события cisco AnyConnect) и моего плагина activesync-monitor
 # включает данные геолокации
@@ -10,6 +10,7 @@
 # но его тоже нет в системе. Так что сначала
 # wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
 # python get-pip.py
+# pip install geoip2
 # 
 # и вы должны загрузить GeoLite2-City database:
 # http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
@@ -22,7 +23,7 @@ import codecs
 from datetime import date, timedelta
 # import GeoIP
 import geoip2.database
-from OSSIM_helper import get_db_connection_data
+from OSSIM_helper import get_db_connection_data, get_place
 
 
 # Datababe connection config.
@@ -60,8 +61,8 @@ reader=geoip2.database.Reader("/usr/share/geoip/GeoLite2-City.mmdb")
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 
 # start
-tabheader='\n\n\nУдаленный доступ через Cisco AnyConnect за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
-colheader='Время;Источник;Место;Пользователь;Назначенный адрес\n'.decode(mycharset)
+tabheader=u'\n\n\nУдаленный доступ через Cisco AnyConnect за период ' + startdate + ' - ' + enddate + '\n\n'
+colheader=u'Время;Источник;Место;Пользователь;Назначенный адрес\n'
 
 what="convert_tz(timestamp,'+00:00'," + mytz +") as time, substring_index(substring_index(userdata4,'IP <',-1),'>',1), username, substring_index(substring_index(userdata4,'IPv4 Address <',-1),'>',1) from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=1636 and acid_event.plugin_sid=722051"
@@ -72,9 +73,9 @@ cursor.execute(select)
 # Вслед за ней и стандартный плагин дублирует их в базу.
 # По этой причине будем устранять "дубли" при подготовке отчета
 #
-duble_stime = ""
-duble_source = ""
-duble_username = ""
+double_stime = ""
+double_source = ""
+double_username = ""
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
@@ -82,17 +83,11 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
          stime = str(row[0]).decode(dbcharset).strip()
          source = str(row[1]).decode(dbcharset).strip()
          username = str(row[2]).decode(dbcharset).strip()
-         if duble_stime != stime or duble_source != source or duble_username != username:
-             duble_stime = stime
-             duble_source = source
-             duble_username = username
-             response = reader.city(source)
-             place =  response.city.name
-             if place is None:
-                 place = response.country.name
-             if place is None:
-                 place = 'Unknown'
-             place = place.encode('utf8').decode(mycharset)
+         if double_stime != stime or double_source != source or double_username != username:
+             double_stime = stime
+             double_source = source
+             double_username = username
+             place = get_place(reader, source, mycharset)
              local_ip = str(row[3]).decode(dbcharset).strip()
              outstr = stime + ';' + source + ';' + place + ';' + username + ';' + local_ip + '\n'
              out.write(outstr)
@@ -101,8 +96,8 @@ out.close()
 
 # Now collect activesync-monitor data
 
-tabheader='\n\n\nДоступ к Exchange ActiveSync за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
-colheader='Время;Пользователь;Устройство;ИД устройства;Адрес подключения;Место;Событие\n'.decode(mycharset)
+tabheader=u'\n\n\nДоступ к Exchange ActiveSync за период ' + startdate + ' - ' + enddate + '\n\n'
+colheader=u'Время;Пользователь;Устройство;ИД устройства;Адрес подключения;Место;Событие\n'
 
 what="convert_tz(timestamp,'+00:00'," + mytz +") as time, username, userdata1, userdata2, userdata3, inet_ntoa(conv(HEX(ip_src), 16, 10)) from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=9007"
@@ -114,13 +109,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      while row: 
          stime = str(row[0]).decode(dbcharset).strip()
          source = str(row[5]).decode(dbcharset).strip()
-         response = reader.city(source)
-         place =  response.city.name
-         if place is None:
-             place = response.country.name
-         if place is None:
-             place = 'Unknown'
-         place = place.encode('utf8').decode(mycharset)
+         place = get_place(reader, source, mycharset)
          username = str(row[1]).decode(dbcharset).strip()
          dev_type = str(row[2]).decode(dbcharset).strip()
          dev_id = str(row[3]).decode(dbcharset).strip()

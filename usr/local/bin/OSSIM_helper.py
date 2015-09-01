@@ -28,3 +28,26 @@ def check_that_first_later(first,second):
         return True
     else:
         return False
+
+def get_place(reader, src, mycharset):
+    # reader - объект класса reader из модуля geoip2.database
+    # src - строка с ip адресом
+    # mycharset - кодировка в которой работает вызывающая функцию программа
+    # В базе geoip2 есть проблемы с кодировкой записей, они могут не конвертнутся в нужную кодировку 
+    # в вызывающей программе, это вызовет ошибку и остановку программы. По этой причине здесь проверяется 
+    # возможность конвертировать результат перед его возвратом. Если конвертировать нельзя, 
+    # возврощаем строку 'Хренпоймигде'. decode('utf8') на этой строке - это правильно. Долго объяснять почему. 
+    try:
+        response = reader.city(src)
+        place =  response.city.name
+        if place is None:
+            place = response.country.name
+        if place is None:
+            place = u'Unknown'
+    except:
+        place = u"Local"
+    try:
+        place.encode(mycharset)
+    except:
+        place = 'Хренпоймигде'.decode('utf8')
+    return place

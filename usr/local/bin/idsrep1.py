@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: cp1251 -*-
 # author Eugene Sokolov esguardian@outlook.com
-# version 1.0.3 + данные geoip 
+# version 1.0.2 + данные geoip 
 # команда: 
 # idsrep.py number host_group_name
 # где: 

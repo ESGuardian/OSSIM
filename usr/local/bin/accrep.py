@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: cp1251 -*-
 # автор esguardian@outlook.com
-# версия 1.0.1
+# версия 1.0.3
 # Отчет о действиях с учетными записями 
 # Собирает из базы данные плагина OSSEC о добавлении/удалении пользователей в группы
 # создании/удалении/блокировке/разблокировке учетных записей
@@ -39,7 +39,7 @@ outfullpath='/usr/local/ossim_reports/' + outfilename
 
 mytz="'+03:00'"
 mycharset='cp1251'
-colheader='Действие;Время;Оператор;Объект;Компьютер;Данные\n'.decode(mycharset)
+colheader=u'Действие;Время;Оператор;Объект;Компьютер;Данные\n'
 
 
 conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbshema, charset='utf8') 
@@ -49,7 +49,7 @@ cursor = conn.cursor()
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 
 # Account change
-tabheader='\n\n\nИзменение учетных записей за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nИзменение учетных записей за период ' + startdate + ' - ' + enddate + '\n\n'
 what="userdata3 as action, convert_tz(timestamp,'+00:00'," + mytz +") as time, userdata8 as operator, username as object, inet_ntoa(conv(HEX(ip_src), 16, 10)) as source, substring_index(substring_index(data_payload,'.inbank.msk: ',-1),' Subject:',1) as info from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=7043 and (acid_event.plugin_sid=18110 or acid_event.plugin_sid=18112 or acid_event.plugin_sid=18142)"
 select="select  " + what + " where " + where + " and " + when + " order by time"
@@ -63,7 +63,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # global and universal group change
-tabheader='\n\n\nИзменение глобальных групп за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nИзменение глобальных групп за период ' + startdate + ' - ' + enddate + '\n\n'
 
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
@@ -99,7 +99,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # Local group change
-tabheader='\n\n\nИзменение локальных групп за период '.decode(mycharset) + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nИзменение локальных групп за период ' + startdate + ' - ' + enddate + '\n\n'
 
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
