@@ -5,6 +5,7 @@ default-character-set=utf8
 
 [mysqld]
 # --- addition lines for set default utf8 encodding for new records in database 
+skip-character-set-client-handshake
 collation-server = utf8_unicode_ci
 init-connect='SET collation_connection = utf8_unicode_ci'
 character-set-server = utf8
