@@ -156,8 +156,12 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     dup=[]
     for item in list:
         (time,src,place,dst,rep)=item.split(';')
+        # не выдавать netflow для локальных адресов
+        if place.lower() == 'local':
+            continue  
         if src not in dup:
-            dup.append(src)    
+            dup.append(src)
+                      
             # prepare nfdump command
             nf_dump_cmd = "/usr/bin/nfdump -R " + nfdir + " -q -m -t "+ nfdump_start + "-" + nfdump_end + " -o line " + "'ip " + src +  "'"
             p = subprocess.Popen (nf_dump_cmd, stdout=subprocess.PIPE, shell=True)
