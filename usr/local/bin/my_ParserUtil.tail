@@ -1,9 +1,12 @@
 # my ParserUtil tail
 
 UNWANTED_URLS=[]
-with open("/etc/my_ossim/unwanted_urls.list","r") as f:
-    UNWANTED_URLS=[line.rstrip() for line in f]
-f.close()
+try:
+    with open("/etc/my_ossim/unwanted_urls.list","r") as f:
+        UNWANTED_URLS=[line.rstrip() for line in f]
+    f.close()
+except:
+    pass
 
 def my_tmg_web_sid(bsent=0, breceived=0, url='0', uri=''):
     if 'Microsoft-Server-ActiveSync' in uri and 'Cmd=Sync' in uri:
