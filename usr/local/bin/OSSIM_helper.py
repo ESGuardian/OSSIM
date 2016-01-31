@@ -2,6 +2,7 @@
 # -*- coding: cp1251 -*-
 import sys
 from datetime import *
+from netaddr import *
 
 # Datababe connection config
 CONF_PATH = '/etc/ossim/ossim_setup.conf'
@@ -37,6 +38,11 @@ def get_place(reader, src, mycharset):
     # в вызывающей программе, это вызовет ошибку и остановку программы. По этой причине здесь проверяется 
     # возможность конвертировать результат перед его возвратом. Если конвертировать нельзя, 
     # возврощаем строку 'Хренпоймигде'. decode('utf8') на этой строке - это правильно. Долго объяснять почему. 
+    
+    ip = IPAddress(src)
+    if ip.is_private():
+        place = u'Local'
+        return place
     try:
         response = reader.city(src)
         place =  response.city.name
@@ -45,7 +51,7 @@ def get_place(reader, src, mycharset):
         if place is None:
             place = u'Unknown'
     except:
-        place = u"Local"
+        place = u'Unknown'
     try:
         place.encode(mycharset)
     except:
