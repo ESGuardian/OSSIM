@@ -1,26 +1,26 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
+# -*- coding: utf8 -*-
 # author Eugene Sokolov esguardian@outlook.com
-# version 1.0.1
-# монитор событий ActiveSync на основе собираемых журналов MS TMG
-# Для работы необходим мой плагин tmg-web (см /etc/ossim/plugins/tmg-web.cfg)
+# version 2.0.1
+# РјРѕРЅРёС‚РѕСЂ СЃРѕР±С‹С‚РёР№ ActiveSync РЅР° РѕСЃРЅРѕРІРµ СЃРѕР±РёСЂР°РµРјС‹С… Р¶СѓСЂРЅР°Р»РѕРІ MS TMG
+# Р”Р»СЏ СЂР°Р±РѕС‚С‹ РЅРµРѕР±С…РѕРґРёРј РјРѕР№ РїР»Р°РіРёРЅ tmg-web (СЃРј /etc/ossim/plugins/tmg-web.cfg)
 #
-# создает два рабочих файла /var/cache/logon-monitor/as-access-history.list и /var/cache/logon-monitor/as-access-<today_date>.list 
-# и записывает в /var/log/activesync-access-monitor.log 5 типов событий:
+# СЃРѕР·РґР°РµС‚ РґРІР° СЂР°Р±РѕС‡РёС… С„Р°Р№Р»Р° /var/cache/logon-monitor/as-access-history.list Рё /var/cache/logon-monitor/as-access-<today_date>.list 
+# Рё Р·Р°РїРёСЃС‹РІР°РµС‚ РІ /var/log/activesync-access-monitor.log 5 С‚РёРїРѕРІ СЃРѕР±С‹С‚РёР№:
 # 1 - Hello! If a user is logged the first time today and is already registered in the past 5 days
 # 2 - Wellcome back! If a user is logged the first time today and has last recorded more than 5 but less than 20 days ago
 # 3 - Wow... Last time I saw you NN days ago! If a user last recorded more then 20 days ago
 # 4 - New user-device pair! If a user-device pair never been regestered before
 # 5 - User device change address! If source ip address changed from last access.
 # 100 - Error! if a script has stoped by error when.
-# К этому монитору полагается мой соответствующий плагин activesync-monitor (см /etc/ossim/plugins/activesync-monitor.cfg),
-# который читает этот лог и записывает события в базу OSSIM.
-# Файлы в  /var/cache/logon-monitor интересны и сами по себе. Они сохраняются в формате csv (user@domain;device_type;device-id;ip_address;time)
-# и могут быть открыты в Excel. History содержит информацию о последнем соединении, today  - о первом соединении сегодня.
+# Рљ СЌС‚РѕРјСѓ РјРѕРЅРёС‚РѕСЂСѓ РїРѕР»Р°РіР°РµС‚СЃСЏ РјРѕР№ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РїР»Р°РіРёРЅ activesync-monitor (СЃРј /etc/ossim/plugins/activesync-monitor.cfg),
+# РєРѕС‚РѕСЂС‹Р№ С‡РёС‚Р°РµС‚ СЌС‚РѕС‚ Р»РѕРі Рё Р·Р°РїРёСЃС‹РІР°РµС‚ СЃРѕР±С‹С‚РёСЏ РІ Р±Р°Р·Сѓ OSSIM.
+# Р¤Р°Р№Р»С‹ РІ  /var/cache/logon-monitor РёРЅС‚РµСЂРµСЃРЅС‹ Рё СЃР°РјРё РїРѕ СЃРµР±Рµ. РћРЅРё СЃРѕС…СЂР°РЅСЏСЋС‚СЃСЏ РІ С„РѕСЂРјР°С‚Рµ csv (user@domain;device_type;device-id;ip_address;time)
+# Рё РјРѕРіСѓС‚ Р±С‹С‚СЊ РѕС‚РєСЂС‹С‚С‹ РІ Excel. History СЃРѕРґРµСЂР¶РёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕСЃР»РµРґРЅРµРј СЃРѕРµРґРёРЅРµРЅРёРё, today  - Рѕ РїРµСЂРІРѕРј СЃРѕРµРґРёРЅРµРЅРёРё СЃРµРіРѕРґРЅСЏ.
 # 
 #
 # 
-# Контролируемое событие: появление команды ActiveSync Sync в URI в логе TMG.
+# РљРѕРЅС‚СЂРѕР»РёСЂСѓРµРјРѕРµ СЃРѕР±С‹С‚РёРµ: РїРѕСЏРІР»РµРЅРёРµ РєРѕРјР°РЅРґС‹ ActiveSync Sync РІ URI РІ Р»РѕРіРµ TMG.
 #
 # 
 

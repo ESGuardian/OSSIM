@@ -1,9 +1,9 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
-# автор esguardian@outlook.com
-# версия 1.0.3
-# Отчет о сеансах веб с большой отправкой данных наружу 
-# использует данные моего плагина tmg-web
+# -*- coding: utf8 -*-
+# Р°РІС‚РѕСЂ esguardian@outlook.com
+# РІРµСЂСЃРёСЏ 2.0.1
+# РћС‚С‡РµС‚ Рѕ СЃРµР°РЅСЃР°С… РІРµР± СЃ Р±РѕР»СЊС€РѕР№ РѕС‚РїСЂР°РІРєРѕР№ РґР°РЅРЅС‹С… РЅР°СЂСѓР¶Сѓ 
+# РёСЃРїРѕР»СЊР·СѓРµС‚ РґР°РЅРЅС‹Рµ РјРѕРµРіРѕ РїР»Р°РіРёРЅР° tmg-web
 #
 import sys
 import MySQLdb
@@ -36,7 +36,7 @@ outfullpath='/usr/local/ossim_reports/' + outfilename
 mytz="'+03:00'"
 mycharset='cp1251'
 dbcharset='utf8'
-colheader=u'Время;Источник;Пользователь;Внешний URL;Принято байт;Отдано байт наружу;Протокол;Данные WhoIs\n'
+colheader=u'Р’СЂРµРјСЏ;РСЃС‚РѕС‡РЅРёРє;РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ;Р’РЅРµС€РЅРёР№ URL;РџСЂРёРЅСЏС‚Рѕ Р±Р°Р№С‚;РћС‚РґР°РЅРѕ Р±Р°Р№С‚ РЅР°СЂСѓР¶Сѓ;РџСЂРѕС‚РѕРєРѕР»;Р”Р°РЅРЅС‹Рµ WhoIs\n'
 
 
 conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbshema, charset=dbcharset) 
@@ -46,7 +46,7 @@ cursor = conn.cursor()
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 
 # start
-tabheader=u'\n\n\nСущественная отправка данных в Интернет за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nРЎСѓС‰РµСЃС‚РІРµРЅРЅР°СЏ РѕС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С… РІ РРЅС‚РµСЂРЅРµС‚ Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what="convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), username, userdata1, userdata2, userdata3, userdata4 from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=9004 and acid_event.plugin_sid=2000"
 select="select  " + what + " where " + where + " and " + when + " order by time"

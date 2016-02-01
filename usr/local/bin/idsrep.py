@@ -1,20 +1,20 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
+# -*- coding: utf8 -*-
 # author Eugene Sokolov esguardian@outlook.com
-# version 1.0.3 + данные geoip 
-# команда: 
+# version 2.0.1 + РґР°РЅРЅС‹Рµ geoip 
+# РєРѕРјР°РЅРґР°: 
 # idsrep.py number host_group_name
-# где: 
-# number - число дней от "сегодня", если пропущено, то 1
-# host_group_name - строковое имя группы хостов (asset group) предварительно созданной в OSSIM
-# это имя не должно содержать пробелов или должно быть взято в кавычки (двойные)
-# если имя не указано будут выданы события IDS (suricata) для всех хостов
-# будьте внимательны, в этом случае объем файла может быть слишком большим для Excel,
-# поскольку отчет будет содержать огромное количество неагрегированных данных netflow 
+# РіРґРµ: 
+# number - С‡РёСЃР»Рѕ РґРЅРµР№ РѕС‚ "СЃРµРіРѕРґРЅСЏ", РµСЃР»Рё РїСЂРѕРїСѓС‰РµРЅРѕ, С‚Рѕ 1
+# host_group_name - СЃС‚СЂРѕРєРѕРІРѕРµ РёРјСЏ РіСЂСѓРїРїС‹ С…РѕСЃС‚РѕРІ (asset group) РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЃРѕР·РґР°РЅРЅРѕР№ РІ OSSIM
+# СЌС‚Рѕ РёРјСЏ РЅРµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РїСЂРѕР±РµР»РѕРІ РёР»Рё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РІР·СЏС‚Рѕ РІ РєР°РІС‹С‡РєРё (РґРІРѕР№РЅС‹Рµ)
+# РµСЃР»Рё РёРјСЏ РЅРµ СѓРєР°Р·Р°РЅРѕ Р±СѓРґСѓС‚ РІС‹РґР°РЅС‹ СЃРѕР±С‹С‚РёСЏ IDS (suricata) РґР»СЏ РІСЃРµС… С…РѕСЃС‚РѕРІ
+# Р±СѓРґСЊС‚Рµ РІРЅРёРјР°С‚РµР»СЊРЅС‹, РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РѕР±СЉРµРј С„Р°Р№Р»Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РёРј РґР»СЏ Excel,
+# РїРѕСЃРєРѕР»СЊРєСѓ РѕС‚С‡РµС‚ Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РѕРіСЂРѕРјРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РЅРµР°РіСЂРµРіРёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… netflow 
 #
 # 
-# Скрипт создает csv со списком событий IDS, а затем для каждого "атакующего" список всех его Netwlow, 
-# можно легко посмотреть, что происходило.
+# РЎРєСЂРёРїС‚ СЃРѕР·РґР°РµС‚ csv СЃРѕ СЃРїРёСЃРєРѕРј СЃРѕР±С‹С‚РёР№ IDS, Р° Р·Р°С‚РµРј РґР»СЏ РєР°Р¶РґРѕРіРѕ "Р°С‚Р°РєСѓСЋС‰РµРіРѕ" СЃРїРёСЃРѕРє РІСЃРµС… РµРіРѕ Netwlow, 
+# РјРѕР¶РЅРѕ Р»РµРіРєРѕ РїРѕСЃРјРѕС‚СЂРµС‚СЊ, С‡С‚Рѕ РїСЂРѕРёСЃС…РѕРґРёР»Рѕ.
 # 
 # 
 import os
@@ -94,7 +94,7 @@ if asset_group_name != '':
     row_av = cursor_av.fetchone()
     if row_av is None:
         with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
-            out.write(u'Группа ' + asset_group_name + u' не найдена. Работа завершена без создания отчета') 
+            out.write(u'Р“СЂСѓРїРїР° ' + asset_group_name + u' РЅРµ РЅР°Р№РґРµРЅР°. Р Р°Р±РѕС‚Р° Р·Р°РІРµСЂС€РµРЅР° Р±РµР· СЃРѕР·РґР°РЅРёСЏ РѕС‚С‡РµС‚Р°') 
         out.close()
         conn_av.close() 
         sys.exit()
@@ -107,8 +107,8 @@ if asset_group_name != '':
 
 # --- ip addresses collected. continue
 
-colheader=u'Сигнатура;Время;Источник;Место;Атакуемый хост;Репутация источника\n'
-tabheader=u'\n\nДанные IDS Suricata для группы ностов ' + asset_group_name +u' за период ' + startdate + ' - ' + enddate + u'\n\n'
+colheader=u'РЎРёРіРЅР°С‚СѓСЂР°;Р’СЂРµРјСЏ;РСЃС‚РѕС‡РЅРёРє;РњРµСЃС‚Рѕ;РђС‚Р°РєСѓРµРјС‹Р№ С…РѕСЃС‚;Р РµРїСѓС‚Р°С†РёСЏ РёСЃС‚РѕС‡РЅРёРєР°\n'
+tabheader=u'\n\nР”Р°РЅРЅС‹Рµ IDS Suricata РґР»СЏ РіСЂСѓРїРїС‹ РЅРѕСЃС‚РѕРІ ' + asset_group_name +u' Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + u'\n\n'
 # create and execute SELECT 
 
 what="plugin_sid,convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), inet_ntoa(conv(HEX(ip_dst), 16, 10)), rep_act_src from acid_event join extra_data on id=extra_data.event_id left join reputation_data on id=reputation_data.event_id"
@@ -156,7 +156,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     dup=[]
     for item in list:
         (time,src,place,dst,rep)=item.split(';')
-        # не выдавать netflow для локальных адресов
+        # РЅРµ РІС‹РґР°РІР°С‚СЊ netflow РґР»СЏ Р»РѕРєР°Р»СЊРЅС‹С… Р°РґСЂРµСЃРѕРІ
         if place.lower() == 'local':
             continue  
         if src not in dup:
@@ -167,8 +167,8 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
             p = subprocess.Popen (nf_dump_cmd, stdout=subprocess.PIPE, shell=True)
             (output,err) = p.communicate()
             p_stutus = p.wait()
-            tabheader = u'\nИнформация Netflow для ' + src + ' : ' + place + ' : ' + rep + '\n'
-            colheader = u'Время;Период;Протокол;Источник;Получатель;Пакетов;Байт;Потоков\n'
+            tabheader = u'\nРРЅС„РѕСЂРјР°С†РёСЏ Netflow РґР»СЏ ' + src + ' : ' + place + ' : ' + rep + '\n'
+            colheader = u'Р’СЂРµРјСЏ;РџРµСЂРёРѕРґ;РџСЂРѕС‚РѕРєРѕР»;РСЃС‚РѕС‡РЅРёРє;РџРѕР»СѓС‡Р°С‚РµР»СЊ;РџР°РєРµС‚РѕРІ;Р‘Р°Р№С‚;РџРѕС‚РѕРєРѕРІ\n'
             out.write(tabheader + colheader)
             for line in output.splitlines():
                 fields = line.rstrip().split()

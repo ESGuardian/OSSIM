@@ -1,10 +1,10 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
-# автор esguardian@outlook.com
-# версия 1.0.3 + данные geoip
-# Отчет об обнаружении в Netflow адресов из списка "плохих" по версии OTX 
-# собирает данные от плагина nfotx
-# в отчет включается также полный список NetFlow для каждого "пойманного" хоста
+# -*- coding: utf8 -*-
+# Р°РІС‚РѕСЂ esguardian@outlook.com
+# РІРµСЂСЃРёСЏ 2.0.1 + РґР°РЅРЅС‹Рµ geoip
+# РћС‚С‡РµС‚ РѕР± РѕР±РЅР°СЂСѓР¶РµРЅРёРё РІ Netflow Р°РґСЂРµСЃРѕРІ РёР· СЃРїРёСЃРєР° "РїР»РѕС…РёС…" РїРѕ РІРµСЂСЃРёРё OTX 
+# СЃРѕР±РёСЂР°РµС‚ РґР°РЅРЅС‹Рµ РѕС‚ РїР»Р°РіРёРЅР° nfotx
+# РІ РѕС‚С‡РµС‚ РІРєР»СЋС‡Р°РµС‚СЃСЏ С‚Р°РєР¶Рµ РїРѕР»РЅС‹Р№ СЃРїРёСЃРѕРє NetFlow РґР»СЏ РєР°Р¶РґРѕРіРѕ "РїРѕР№РјР°РЅРЅРѕРіРѕ" С…РѕСЃС‚Р°
 #
 import os
 import sys
@@ -48,7 +48,7 @@ outfullpath='/usr/local/ossim_reports/' + outfilename
 mytz="'+03:00'"
 mycharset='cp1251'
 dbcharset='utf8'
-colheader=u'Время;Источник;Внешний IP;Место;Репутация хоста\n'
+colheader=u'Р’СЂРµРјСЏ;РСЃС‚РѕС‡РЅРёРє;Р’РЅРµС€РЅРёР№ IP;РњРµСЃС‚Рѕ;Р РµРїСѓС‚Р°С†РёСЏ С…РѕСЃС‚Р°\n'
 my_rep_data = {}
 if os.path.isfile('/etc/my_ossim/my_reputation.data'):
     with codecs.open('/etc/my_ossim/my_reputation.data', 'r', encoding=mycharset) as f:
@@ -65,13 +65,13 @@ reader=geoip2.database.Reader("/usr/share/geoip/GeoLite2-City.mmdb")
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 
 # start
-tabheader=u'\n\n\nКоммуникации с известными вредоносными хостами за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nРљРѕРјРјСѓРЅРёРєР°С†РёРё СЃ РёР·РІРµСЃС‚РЅС‹РјРё РІСЂРµРґРѕРЅРѕСЃРЅС‹РјРё С…РѕСЃС‚Р°РјРё Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what="convert_tz(timestamp,'+00:00'," + mytz +") as time, src_hostname, substring_index(substring_index(data_payload,'-> ',-1),':',1) as dst_ip, rep_act_dst from acid_event join extra_data on acid_event.id=extra_data.event_id left join reputation_data on id=reputation_data.event_id"
 where="acid_event.plugin_id=90011 and acid_event.plugin_sid=1"
 select="select  " + what + " where " + where + " and " + when + " order by time"
 cursor.execute(select)
 list=[] # create list of returned data for later use
-dup=[] # Нам не нужны дублирующие записи. Они все равно будут в NetFlow
+dup=[] # РќР°Рј РЅРµ РЅСѓР¶РЅС‹ РґСѓР±Р»РёСЂСѓСЋС‰РёРµ Р·Р°РїРёСЃРё. РћРЅРё РІСЃРµ СЂР°РІРЅРѕ Р±СѓРґСѓС‚ РІ NetFlow
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     out.write(tabheader + colheader) 
     row = cursor.fetchone() 
@@ -104,8 +104,8 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         p = subprocess.Popen (nf_dump_cmd, stdout=subprocess.PIPE, shell=True)
         (output,err) = p.communicate()
         p_stutus = p.wait()
-        tabheader = u'\n\n\nИнформация Netflow для ' + dst + ' : ' + place + ' : ' + rep + '\n'
-        colheader = u'Время;Период;Протокол;Источник;Получатель;Пакетов;Байт;Потоков\n'
+        tabheader = u'\n\n\nРРЅС„РѕСЂРјР°С†РёСЏ Netflow РґР»СЏ ' + dst + ' : ' + place + ' : ' + rep + '\n'
+        colheader = u'Р’СЂРµРјСЏ;РџРµСЂРёРѕРґ;РџСЂРѕС‚РѕРєРѕР»;РСЃС‚РѕС‡РЅРёРє;РџРѕР»СѓС‡Р°С‚РµР»СЊ;РџР°РєРµС‚РѕРІ;Р‘Р°Р№С‚;РџРѕС‚РѕРєРѕРІ\n'
         out.write(tabheader + colheader) 
         for line in output.splitlines():
             fields = line.rstrip().split()
