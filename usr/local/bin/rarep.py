@@ -1,20 +1,20 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
-# автор esguardian@outlook.com
-# версия 1.0.3
-# Отчет о событиях удаленного доступа
-# Собирает от стандартного плагина cisco-asa (события cisco AnyConnect) и моего плагина activesync-monitor
-# включает данные геолокации
-# будьте внимательны вы должны предварительно установить geoip2 python module
-# его нет в системе по-умолчанию. Это можно сделать пользуя PIP
-# но его тоже нет в системе. Так что сначала
+# -*- coding: utf8 -*-
+# Р°РІС‚РѕСЂ esguardian@outlook.com
+# РІРµСЂСЃРёСЏ 2.0.1
+# РћС‚С‡РµС‚ Рѕ СЃРѕР±С‹С‚РёСЏС… СѓРґР°Р»РµРЅРЅРѕРіРѕ РґРѕСЃС‚СѓРїР°
+# РЎРѕР±РёСЂР°РµС‚ РѕС‚ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ РїР»Р°РіРёРЅР° cisco-asa (СЃРѕР±С‹С‚РёСЏ cisco AnyConnect) Рё РјРѕРµРіРѕ РїР»Р°РіРёРЅР° activesync-monitor
+# РІРєР»СЋС‡Р°РµС‚ РґР°РЅРЅС‹Рµ РіРµРѕР»РѕРєР°С†РёРё
+# Р±СѓРґСЊС‚Рµ РІРЅРёРјР°С‚РµР»СЊРЅС‹ РІС‹ РґРѕР»Р¶РЅС‹ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ geoip2 python module
+# РµРіРѕ РЅРµС‚ РІ СЃРёСЃС‚РµРјРµ РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ. Р­С‚Рѕ РјРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ РїРѕР»СЊР·СѓСЏ PIP
+# РЅРѕ РµРіРѕ С‚РѕР¶Рµ РЅРµС‚ РІ СЃРёСЃС‚РµРјРµ. РўР°Рє С‡С‚Рѕ СЃРЅР°С‡Р°Р»Р°
 # wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate
 # python get-pip.py
 # pip install geoip2
 # 
-# и вы должны загрузить GeoLite2-City database:
+# Рё РІС‹ РґРѕР»Р¶РЅС‹ Р·Р°РіСЂСѓР·РёС‚СЊ GeoLite2-City database:
 # http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz
-# распаковать и поместить в
+# СЂР°СЃРїР°РєРѕРІР°С‚СЊ Рё РїРѕРјРµСЃС‚РёС‚СЊ РІ
 #/usr/share/geoip/GeoLite2-City.mmdb
 # 
 import sys
@@ -61,17 +61,17 @@ reader=geoip2.database.Reader("/usr/share/geoip/GeoLite2-City.mmdb")
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 
 # start
-tabheader=u'\n\n\nУдаленный доступ через Cisco AnyConnect за период ' + startdate + ' - ' + enddate + '\n\n'
-colheader=u'Время;Источник;Место;Пользователь;Назначенный адрес\n'
+tabheader=u'\n\n\nРЈРґР°Р»РµРЅРЅС‹Р№ РґРѕСЃС‚СѓРї С‡РµСЂРµР· Cisco AnyConnect Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
+colheader=u'Р’СЂРµРјСЏ;РСЃС‚РѕС‡РЅРёРє;РњРµСЃС‚Рѕ;РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ;РќР°Р·РЅР°С‡РµРЅРЅС‹Р№ Р°РґСЂРµСЃ\n'
 
 what="convert_tz(timestamp,'+00:00'," + mytz +") as time, substring_index(substring_index(userdata4,'IP <',-1),'>',1), username, substring_index(substring_index(userdata4,'IPv4 Address <',-1),'>',1) from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=1636 and acid_event.plugin_sid=722051"
 select="select  " + what + " where " + where + " and " + when + " order by time"
 cursor.execute(select)
 #
-# Так уж вышло, что Cisco-ASA почему-то дублирует в логе нужные мне события.
-# Вслед за ней и стандартный плагин дублирует их в базу.
-# По этой причине будем устранять "дубли" при подготовке отчета
+# РўР°Рє СѓР¶ РІС‹С€Р»Рѕ, С‡С‚Рѕ Cisco-ASA РїРѕС‡РµРјСѓ-С‚Рѕ РґСѓР±Р»РёСЂСѓРµС‚ РІ Р»РѕРіРµ РЅСѓР¶РЅС‹Рµ РјРЅРµ СЃРѕР±С‹С‚РёСЏ.
+# Р’СЃР»РµРґ Р·Р° РЅРµР№ Рё СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РїР»Р°РіРёРЅ РґСѓР±Р»РёСЂСѓРµС‚ РёС… РІ Р±Р°Р·Сѓ.
+# РџРѕ СЌС‚РѕР№ РїСЂРёС‡РёРЅРµ Р±СѓРґРµРј СѓСЃС‚СЂР°РЅСЏС‚СЊ "РґСѓР±Р»Рё" РїСЂРё РїРѕРґРіРѕС‚РѕРІРєРµ РѕС‚С‡РµС‚Р°
 #
 double_stime = ""
 double_source = ""
@@ -96,8 +96,8 @@ out.close()
 
 # Now collect activesync-monitor data
 
-tabheader=u'\n\n\nДоступ к Exchange ActiveSync за период ' + startdate + ' - ' + enddate + '\n\n'
-colheader=u'Время;Пользователь;Устройство;ИД устройства;Адрес подключения;Место;Событие\n'
+tabheader=u'\n\n\nР”РѕСЃС‚СѓРї Рє Exchange ActiveSync Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
+colheader=u'Р’СЂРµРјСЏ;РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ;РЈСЃС‚СЂРѕР№СЃС‚РІРѕ;РР” СѓСЃС‚СЂРѕР№СЃС‚РІР°;РђРґСЂРµСЃ РїРѕРґРєР»СЋС‡РµРЅРёСЏ;РњРµСЃС‚Рѕ;РЎРѕР±С‹С‚РёРµ\n'
 
 what="convert_tz(timestamp,'+00:00'," + mytz +") as time, username, userdata1, userdata2, userdata3, inet_ntoa(conv(HEX(ip_src), 16, 10)) from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=9007"

@@ -1,20 +1,30 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
+# -*- coding: utf8 -*-
 # author Eugene Sokolov esguardian@outlook.com
-# version 1.0.3 + данные geoip 
-# команда: 
-# idsrep.py number host_group_name
-# где: 
-# number - число дней от "сегодня", если пропущено, то 1
-# host_group_name - строковое имя группы хостов (asset group) предварительно созданной в OSSIM
-# это имя не должно содержать пробелов или должно быть взято в кавычки (двойные)
-# если имя не указано будут выданы события IDS (suricata) для всех хостов
-# будьте внимательны, в этом случае объем файла может быть слишком большим для Excel,
-# поскольку отчет будет содержать огромное количество неагрегированных данных netflow 
-#
-# 
-# Скрипт создает csv со списком событий IDS, а затем для каждого "атакующего" список всех его Netwlow, 
-# можно легко посмотреть, что происходило.
+# version 2.0.1 
+# РґРѕР±Р°РІР»РµРЅ С„РёР»СЊС‚СЂ РґР»СЏ РёСЃРєР»СЋС‡РµРЅРёСЏ СЃРёРіРЅР°С‚СѓСЂ.
+# Р¤РёР»СЊС‚СЂ РїСЂРёРјРµРЅСЏС‚СЊ СЃ РѕСЃС‚РѕСЂРѕР¶РЅРѕСЃС‚СЊСЋ, РєР°Р¶РґР°СЏ РёСЃРєР»СЋС‡РµРЅРЅР°СЏ СЃРёРіРЅР°С‚СѓСЂР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРёР·РЅР°РєРѕРј Р°С‚Р°РєРё,
+# РµСЃР»Рё РІС‹ РµРµ РѕС‚РєР»СЋС‡РёР»Рё, РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РґСЂСѓРіРѕР№ РїСЂРёР·РЅР°Рє РґР»СЏ РґРµС‚РµРєС‚РёСЂРѕРІР°РЅРёСЏ Р°РЅР°Р»РѕРіРёС‡РЅРѕР№ Р°С‚Р°РєРё.
+# РєРѕРјР°РЅРґР°: 
+# idsrep.py l=number g=host_group_name f=/filepath/to/filter/file
+# РіРґРµ: 
+# number - С‡РёСЃР»Рѕ РґРЅРµР№ РѕС‚ "СЃРµРіРѕРґРЅСЏ", РµСЃР»Рё РїСЂРѕРїСѓС‰РµРЅРѕ, С‚Рѕ 1
+# host_group_name - СЃС‚СЂРѕРєРѕРІРѕРµ РёРјСЏ РіСЂСѓРїРїС‹ С…РѕСЃС‚РѕРІ (asset group) РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЃРѕР·РґР°РЅРЅРѕР№ РІ OSSIM
+# СЌС‚Рѕ РёРјСЏ РЅРµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ РїСЂРѕР±РµР»РѕРІ РёР»Рё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РІР·СЏС‚Рѕ РІ РєР°РІС‹С‡РєРё (РґРІРѕР№РЅС‹Рµ)
+# РµСЃР»Рё РёРјСЏ РЅРµ СѓРєР°Р·Р°РЅРѕ Р±СѓРґСѓС‚ РІС‹РґР°РЅС‹ СЃРѕР±С‹С‚РёСЏ IDS (suricata) РґР»СЏ РІСЃРµС… С…РѕСЃС‚РѕРІ
+# Р±СѓРґСЊС‚Рµ РІРЅРёРјР°С‚РµР»СЊРЅС‹, РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РѕР±СЉРµРј С„Р°Р№Р»Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РёРј РґР»СЏ Excel,
+# РїРѕСЃРєРѕР»СЊРєСѓ РѕС‚С‡РµС‚ Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РѕРіСЂРѕРјРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РЅРµР°РіСЂРµРіРёСЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… netflow 
+# /filepath/to/filter/file РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ СЃРѕ СЃРїРёСЃРєРѕРј С„РёР»СЊС‚СЂРѕРІ СЃРѕР±С‹С‚РёР№.
+# С„РѕСЂРјР°С‚ Р·Р°РїРёСЃРµР№ РІ С„Р°Р№Р»Рµ 
+# РїРѕ РѕРґРЅРѕРјСѓ РЅРѕРјРµСЂСѓ СЃРёРіРЅР°С‚СѓСЂС‹ (plugin sid) РІ СЃС‚СЂРѕРєРµ СЃ РєРѕРјРјРµРЅС‚Р°СЂРёРµРј РїРѕСЃР»Рµ Р·РЅР°РєР° ':'
+# РќР°РїСЂРёРјРµСЂ:
+# --------
+# 2011346 : РєРѕРјРјРµРЅС‚Р°СЂРёР№ РјРѕР¶РЅРѕ РїРѕ-СЂСѓСЃСЃРєРё РЅРѕ С‚РѕР»СЊРєРѕ РІ cp1251
+# 2012252 : ET SHELLCODE Common 0a0a0a0a Heap Spray String
+# ---------
+# РљРѕРґРёСЂРѕРІРєР° СЃС‚СЂРѕРє cp1251
+# РЎРєСЂРёРїС‚ СЃРѕР·РґР°РµС‚ csv СЃРѕ СЃРїРёСЃРєРѕРј СЃРѕР±С‹С‚РёР№ IDS, Р° Р·Р°С‚РµРј РґР»СЏ РєР°Р¶РґРѕРіРѕ "Р°С‚Р°РєСѓСЋС‰РµРіРѕ" СЃРїРёСЃРѕРє РІСЃРµС… РµРіРѕ Netwlow, 
+# РјРѕР¶РЅРѕ Р»РµРіРєРѕ РїРѕСЃРјРѕС‚СЂРµС‚СЊ, С‡С‚Рѕ РїСЂРѕРёСЃС…РѕРґРёР»Рѕ.
 # 
 # 
 import os
@@ -34,15 +44,31 @@ asset_dbschema='alienvault'
 # --- End of Database config
 
 # ---- Init 
-
 period=1
 asset_group_name=''
+filter_file_path=''
 if len(sys.argv) > 1:
     for c in sys.argv:
-        if c.isdigit():
-            period = int(c)
-        elif 'idsrep.py' not in c:
-            asset_group_name = c.strip('"').strip("'")
+        if 'l=' in c:
+            period = int(c.split('l=')[-1].strip())
+        elif 'g=' in c:
+            asset_group_name = c.split('g=')[-1].strip('"').strip("'").strip()
+        elif 'f=' in c:
+            filter_file_path = c.split('f=')[-1].strip('"').strip("'").strip()
+
+mytz="'+03:00'"
+mycharset='cp1251'
+dbcharset='utf8'
+
+filtered_sids = []
+
+if filter_file_path != "":
+    if os.path.isfile(filter_file_path):
+        with codecs.open(filter_file_path, 'r', encoding=mycharset) as f:
+            for line in f:
+                if ':' in line:
+                    filtered_sids.append(str(line.split(':')[0].strip()))
+        f.close()
 
 
 # set time interval for mySQL Select
@@ -94,7 +120,7 @@ if asset_group_name != '':
     row_av = cursor_av.fetchone()
     if row_av is None:
         with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
-            out.write(u'Группа ' + asset_group_name + u' не найдена. Работа завершена без создания отчета') 
+            out.write(u'Р“СЂСѓРїРїР° ' + asset_group_name + u' РЅРµ РЅР°Р№РґРµРЅР°. Р Р°Р±РѕС‚Р° Р·Р°РІРµСЂС€РµРЅР° Р±РµР· СЃРѕР·РґР°РЅРёСЏ РѕС‚С‡РµС‚Р°') 
         out.close()
         conn_av.close() 
         sys.exit()
@@ -107,8 +133,8 @@ if asset_group_name != '':
 
 # --- ip addresses collected. continue
 
-colheader=u'Сигнатура;Время;Источник;Место;Атакуемый хост;Репутация источника\n'
-tabheader=u'\n\nДанные IDS Suricata для группы ностов ' + asset_group_name +u' за период ' + startdate + ' - ' + enddate + u'\n\n'
+colheader=u'РЎРёРіРЅР°С‚СѓСЂР°;Р’СЂРµРјСЏ;РСЃС‚РѕС‡РЅРёРє;РњРµСЃС‚Рѕ;РђС‚Р°РєСѓРµРјС‹Р№ С…РѕСЃС‚;Р РµРїСѓС‚Р°С†РёСЏ РёСЃС‚РѕС‡РЅРёРєР°\n'
+tabheader=u'\n\nР”Р°РЅРЅС‹Рµ IDS Suricata РґР»СЏ РіСЂСѓРїРїС‹ РЅРѕСЃС‚РѕРІ ' + asset_group_name +u' Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + u'\n\n'
 # create and execute SELECT 
 
 what="plugin_sid,convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), inet_ntoa(conv(HEX(ip_dst), 16, 10)), rep_act_src from acid_event join extra_data on id=extra_data.event_id left join reputation_data on id=reputation_data.event_id"
@@ -126,37 +152,39 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     out.write(tabheader + colheader) 
     row = cursor.fetchone() 
     while row:
-        src = row[2].strip()       
-        if row[4] is None:
-            if src in my_rep_data:
-                rep = my_rep_data[src]
+        src = row[2].strip() 
+        plugin_sid = str(row[0]).strip() 
+        if plugin_sid not in filtered_sids:
+            if row[4] is None:
+                if src in my_rep_data:
+                    rep = my_rep_data[src]
+                else:
+                    rep = 'None'
             else:
-                rep = 'None'
-        else:
-            rep = str(row[4]).decode(dbcharset) 
-        if rep.lower() != 'false':
-            place = get_place(reader, src, mycharset)
-            outstr = str(row[1]).decode(dbcharset).replace(';',',').strip()        
-            outstr = outstr + ';' + src
-            outstr = outstr + ';' + place
-            outstr = outstr + ';' + row[3].strip()
-            outstr = outstr + ';' + rep.replace(';',',')
-            plugin_sid = str(row[0]).strip() 
-            list.append(outstr)
-            # now get signature name
-            signature_name = u'Unknown'
-            cursor_av.execute('select name from plugin_sid where plugin_id=1001 and sid=' + plugin_sid)
-            row_av = cursor_av.fetchone()
-            for c in row_av:
-                signature_name = str(c).decode(dbcharset)
-            outstr = signature_name.replace(';',',') + ';' + outstr
-            out.write(outstr + '\n')
+                rep = str(row[4]).decode(dbcharset) 
+            if rep.lower() != 'false':
+                place = get_place(reader, src, mycharset)
+                outstr = str(row[1]).decode(dbcharset).replace(';',',').strip()        
+                outstr = outstr + ';' + src
+                outstr = outstr + ';' + place
+                outstr = outstr + ';' + row[3].strip()
+                outstr = outstr + ';' + rep.replace(';',',')
+                plugin_sid = str(row[0]).strip() 
+                list.append(outstr)
+                # now get signature name
+                signature_name = u'Unknown'
+                cursor_av.execute('select name from plugin_sid where plugin_id=1001 and sid=' + plugin_sid)
+                row_av = cursor_av.fetchone()
+                for c in row_av:
+                    signature_name = str(c).decode(dbcharset)
+                outstr = signature_name.replace(';',',') + ';' + outstr
+                out.write(outstr + '\n')
         row = cursor.fetchone()
     # and now add to the file netflow data for each event but deduplicate
     dup=[]
     for item in list:
         (time,src,place,dst,rep)=item.split(';')
-        # не выдавать netflow для локальных адресов
+        # РЅРµ РІС‹РґР°РІР°С‚СЊ netflow РґР»СЏ Р»РѕРєР°Р»СЊРЅС‹С… Р°РґСЂРµСЃРѕРІ
         if place.lower() == 'local':
             continue  
         if src not in dup:
@@ -167,8 +195,8 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
             p = subprocess.Popen (nf_dump_cmd, stdout=subprocess.PIPE, shell=True)
             (output,err) = p.communicate()
             p_stutus = p.wait()
-            tabheader = u'\nИнформация Netflow для ' + src + ' : ' + place + ' : ' + rep + '\n'
-            colheader = u'Время;Период;Протокол;Источник;Получатель;Пакетов;Байт;Потоков\n'
+            tabheader = u'\nРРЅС„РѕСЂРјР°С†РёСЏ Netflow РґР»СЏ ' + src + ' : ' + place + ' : ' + rep + '\n'
+            colheader = u'Р’СЂРµРјСЏ;РџРµСЂРёРѕРґ;РџСЂРѕС‚РѕРєРѕР»;РСЃС‚РѕС‡РЅРёРє;РџРѕР»СѓС‡Р°С‚РµР»СЊ;РџР°РєРµС‚РѕРІ;Р‘Р°Р№С‚;РџРѕС‚РѕРєРѕРІ\n'
             out.write(tabheader + colheader)
             for line in output.splitlines():
                 fields = line.rstrip().split()

@@ -1,24 +1,24 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
-# автор esguardian@outlook.com
-# версия 1.0.1
+# -*- coding: utf8 -*-
+# Р°РІС‚РѕСЂ esguardian@outlook.com
+# РІРµСЂСЃРёСЏ 2.0.1
 # 
-# создает два рабочих файла  /var/cache/logon-monitor/logon-history.list и /var/cache/logon-monitor/logon-<today_date>.list 
-# и записывает в /var/log/user-logon-monitor.log 5 типов событий:
+# СЃРѕР·РґР°РµС‚ РґРІР° СЂР°Р±РѕС‡РёС… С„Р°Р№Р»Р°  /var/cache/logon-monitor/logon-history.list Рё /var/cache/logon-monitor/logon-<today_date>.list 
+# Рё Р·Р°РїРёСЃС‹РІР°РµС‚ РІ /var/log/user-logon-monitor.log 5 С‚РёРїРѕРІ СЃРѕР±С‹С‚РёР№:
 # 1 - Hello! If a user is logged the first time today and is already registered in the past 5 days
 # 2 - Wellcome back! If a user is logged the first time today and has last recorded more than 5 but less than 20 days ago
 # 3 - Wow... Last time I saw you NN days ago! If a user last recorded more then 20 days ago
 # 4 - New kid in town! If a user never been regestered before
 # 5 - Error! if a script has stoped by error when.
-# К этому монитору полагается мой соответствующий плагин user-logon-monitor (см /etc/ossim/plugins/user-logon-monitor.cfg),
-# который читает этот лог и записывает события в базу OSSIM.
-# Файлы в  /var/cache/logon-monitor интересны и сами по себе. Они сохраняются в формате csv (user@domain;time) 
-# и могут быть открыты в Excel. History содержит информацию о последнем соединении, today  - о первом соединении сегодня.
-# In user@domain 'domain' означает 'host' для локального логона Linux или Windows  
-# слово 'Remote' означет логон на Cisco AnyConnect.
+# Рљ СЌС‚РѕРјСѓ РјРѕРЅРёС‚РѕСЂСѓ РїРѕР»Р°РіР°РµС‚СЃСЏ РјРѕР№ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РїР»Р°РіРёРЅ user-logon-monitor (СЃРј /etc/ossim/plugins/user-logon-monitor.cfg),
+# РєРѕС‚РѕСЂС‹Р№ С‡РёС‚Р°РµС‚ СЌС‚РѕС‚ Р»РѕРі Рё Р·Р°РїРёСЃС‹РІР°РµС‚ СЃРѕР±С‹С‚РёСЏ РІ Р±Р°Р·Сѓ OSSIM.
+# Р¤Р°Р№Р»С‹ РІ  /var/cache/logon-monitor РёРЅС‚РµСЂРµСЃРЅС‹ Рё СЃР°РјРё РїРѕ СЃРµР±Рµ. РћРЅРё СЃРѕС…СЂР°РЅСЏСЋС‚СЃСЏ РІ С„РѕСЂРјР°С‚Рµ csv (user@domain;time) 
+# Рё РјРѕРіСѓС‚ Р±С‹С‚СЊ РѕС‚РєСЂС‹С‚С‹ РІ Excel. History СЃРѕРґРµСЂР¶РёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕСЃР»РµРґРЅРµРј СЃРѕРµРґРёРЅРµРЅРёРё, today  - Рѕ РїРµСЂРІРѕРј СЃРѕРµРґРёРЅРµРЅРёРё СЃРµРіРѕРґРЅСЏ.
+# In user@domain 'domain' РѕР·РЅР°С‡Р°РµС‚ 'host' РґР»СЏ Р»РѕРєР°Р»СЊРЅРѕРіРѕ Р»РѕРіРѕРЅР° Linux РёР»Рё Windows  
+# СЃР»РѕРІРѕ 'Remote' РѕР·РЅР°С‡РµС‚ Р»РѕРіРѕРЅ РЅР° Cisco AnyConnect.
 #
 # 
-# Отслеживает события: OSSEC Windows logon success (domain и local), pam unix logon, 
+# РћС‚СЃР»РµР¶РёРІР°РµС‚ СЃРѕР±С‹С‚РёСЏ: OSSEC Windows logon success (domain Рё local), pam unix logon, 
 # cisco-asa remote access (AnyConnect) ip to user assined.
 #
 

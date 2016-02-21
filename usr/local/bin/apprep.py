@@ -1,11 +1,11 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
-# автор esguardian@outlook.com
-# версия 1.0.3
-# Отчет об установке приложений на рабочих станциях и серверах 
-# Собирает из базы данные плагина OSSEC о событиях установки Windows/Unix приложений
-# а также данные иониторинга "нежелательных" программ (skype, torrent и т.п.)
-# для эффективной работы нужен сбор логов OSSEC с рабочих станций и серверов 
+# -*- coding: utf8 -*-
+# Р°РІС‚РѕСЂ esguardian@outlook.com
+# РІРµСЂСЃРёСЏ 2.0.1
+# РћС‚С‡РµС‚ РѕР± СѓСЃС‚Р°РЅРѕРІРєРµ РїСЂРёР»РѕР¶РµРЅРёР№ РЅР° СЂР°Р±РѕС‡РёС… СЃС‚Р°РЅС†РёСЏС… Рё СЃРµСЂРІРµСЂР°С… 
+# РЎРѕР±РёСЂР°РµС‚ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹Рµ РїР»Р°РіРёРЅР° OSSEC Рѕ СЃРѕР±С‹С‚РёСЏС… СѓСЃС‚Р°РЅРѕРІРєРё Windows/Unix РїСЂРёР»РѕР¶РµРЅРёР№
+# Р° С‚Р°РєР¶Рµ РґР°РЅРЅС‹Рµ РёРѕРЅРёС‚РѕСЂРёРЅРіР° "РЅРµР¶РµР»Р°С‚РµР»СЊРЅС‹С…" РїСЂРѕРіСЂР°РјРј (skype, torrent Рё С‚.Рї.)
+# РґР»СЏ СЌС„С„РµРєС‚РёРІРЅРѕР№ СЂР°Р±РѕС‚С‹ РЅСѓР¶РµРЅ СЃР±РѕСЂ Р»РѕРіРѕРІ OSSEC СЃ СЂР°Р±РѕС‡РёС… СЃС‚Р°РЅС†РёР№ Рё СЃРµСЂРІРµСЂРѕРІ 
 #
 import sys
 import MySQLdb
@@ -38,7 +38,7 @@ outfullpath='/usr/local/ossim_reports/' + outfilename
 mytz="'+03:00'"
 mycharset='cp1251'
 dbcharset='utf8'
-colheader=u'Действие;Время;Компьютер;Данные\n'
+colheader=u'Р”РµР№СЃС‚РІРёРµ;Р’СЂРµРјСЏ;РљРѕРјРїСЊСЋС‚РµСЂ;Р”Р°РЅРЅС‹Рµ\n'
 
 
 conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbschema, charset='utf8') 
@@ -47,7 +47,7 @@ cursor = conn.cursor()
 # ---- End of Init
 
 # Windows app monitor
-tabheader=u'\n\nМониторинг программ Windows за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\nРњРѕРЅРёС‚РѕСЂРёРЅРі РїСЂРѕРіСЂР°РјРј Windows Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]',-1),'[END]',1) from acid_event join extra_data on (id=event_id)"
 where = "acid_event.plugin_id=7093 and acid_event.plugin_sid=514"
 select="select " + what + " where "  + where + " and " + when + " order by time"
@@ -61,7 +61,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # Windows APP install/uninstall
-tabheader = u'\n\nУстановка программ Windows за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader = u'\n\nРЈСЃС‚Р°РЅРѕРІРєР° РїСЂРѕРіСЂР°РјРј Windows Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what = "userdata3 as action, convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)) as source, concat('MsiInstaller: ',substring_index(substring_index(substring_index(data_payload,'MsiInstaller: ',-1),'[END]',1),' (NULL)',1)) as info from acid_event join extra_data on id=event_id"
 where = "acid_event.plugin_id=7006 and (acid_event.plugin_sid=18147 or acid_event.plugin_sid=18146)"
 select="select " + what + " where "  + where + " and " + when + " order by time"
@@ -75,7 +75,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # Linux package install
-tabheader=u'\n\nУстановка пакетов Linux за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\nРЈСЃС‚Р°РЅРѕРІРєР° РїР°РєРµС‚РѕРІ Linux Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]',-1),'[END]',1) from acid_event join extra_data on id=event_id"
 where = "acid_event.plugin_id=7042 and acid_event.plugin_sid=2902"
 select="select " + what + " where "  + where + " and " + when + " order by time"
@@ -89,7 +89,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 #  Integrity checksum changed.
-tabheader=u'\n\nИзменения контрольных сумм файлов за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\nРР·РјРµРЅРµРЅРёСЏ РєРѕРЅС‚СЂРѕР»СЊРЅС‹С… СЃСѓРјРј С„Р°Р№Р»РѕРІ Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]Integrity checksum changed for: ''',-1),'''',1) from acid_event join extra_data on id=event_id"
 where = "acid_event.plugin_id=7094 and (acid_event.plugin_sid=550 or acid_event.plugin_sid=551 or acid_event.plugin_sid=552)"
 select="select " + what + " where "  + where + " and " + when + " order by time"

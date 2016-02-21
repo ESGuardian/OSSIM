@@ -1,17 +1,17 @@
 #! /usr/bin/python
-# -*- coding: cp1251 -*-
-# автор esguardian@outlook.com
-# версия 1.0.4
+# -*- coding: utf8 -*-
+# Р°РІС‚РѕСЂ esguardian@outlook.com
+# РІРµСЂСЃРёСЏ 1.0.4
 # ----------
-# 09.09.2015. вырезание данных из payload перенесено из SQL запроса в тело скрипта
-# так быстрее работает
+# 09.09.2015. РІС‹СЂРµР·Р°РЅРёРµ РґР°РЅРЅС‹С… РёР· payload РїРµСЂРµРЅРµСЃРµРЅРѕ РёР· SQL Р·Р°РїСЂРѕСЃР° РІ С‚РµР»Рѕ СЃРєСЂРёРїС‚Р°
+# С‚Р°Рє Р±С‹СЃС‚СЂРµРµ СЂР°Р±РѕС‚Р°РµС‚
 # -----------------------
-# Отчет о действиях с учетными записями 
-# Собирает из базы данные плагина OSSEC о добавлении/удалении пользователей в группы
-# создании/удалении/блокировке/разблокировке учетных записей
-# создании/удалении групп
-# для эффективной работы нужен сбор логов OSSEC с контроллеров доменов 
-# и (желательно) с рабочих станций  
+# РћС‚С‡РµС‚ Рѕ РґРµР№СЃС‚РІРёСЏС… СЃ СѓС‡РµС‚РЅС‹РјРё Р·Р°РїРёСЃСЏРјРё 
+# РЎРѕР±РёСЂР°РµС‚ РёР· Р±Р°Р·С‹ РґР°РЅРЅС‹Рµ РїР»Р°РіРёРЅР° OSSEC Рѕ РґРѕР±Р°РІР»РµРЅРёРё/СѓРґР°Р»РµРЅРёРё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РІ РіСЂСѓРїРїС‹
+# СЃРѕР·РґР°РЅРёРё/СѓРґР°Р»РµРЅРёРё/Р±Р»РѕРєРёСЂРѕРІРєРµ/СЂР°Р·Р±Р»РѕРєРёСЂРѕРІРєРµ СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№
+# СЃРѕР·РґР°РЅРёРё/СѓРґР°Р»РµРЅРёРё РіСЂСѓРїРї
+# РґР»СЏ СЌС„С„РµРєС‚РёРІРЅРѕР№ СЂР°Р±РѕС‚С‹ РЅСѓР¶РµРЅ СЃР±РѕСЂ Р»РѕРіРѕРІ OSSEC СЃ РєРѕРЅС‚СЂРѕР»Р»РµСЂРѕРІ РґРѕРјРµРЅРѕРІ 
+# Рё (Р¶РµР»Р°С‚РµР»СЊРЅРѕ) СЃ СЂР°Р±РѕС‡РёС… СЃС‚Р°РЅС†РёР№  
 #
 import sys
 import string
@@ -44,7 +44,7 @@ outfullpath='/usr/local/ossim_reports/' + outfilename
 
 mytz="'+03:00'"
 mycharset='cp1251'
-colheader=u'Действие;Время;Оператор;Объект;Компьютер;Данные\n'
+colheader=u'Р”РµР№СЃС‚РІРёРµ;Р’СЂРµРјСЏ;РћРїРµСЂР°С‚РѕСЂ;РћР±СЉРµРєС‚;РљРѕРјРїСЊСЋС‚РµСЂ;Р”Р°РЅРЅС‹Рµ\n'
 
 
 conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbshema, charset='utf8') 
@@ -54,7 +54,7 @@ cursor = conn.cursor()
 when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 
 # Account change
-tabheader=u'\n\n\nИзменение учетных записей за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nРР·РјРµРЅРµРЅРёРµ СѓС‡РµС‚РЅС‹С… Р·Р°РїРёСЃРµР№ Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 what = "userdata3 as action, convert_tz(timestamp,'+00:00'," + mytz +") as time, userdata8 as operator, username as object, inet_ntoa(conv(HEX(ip_src), 16, 10)) as source, data_payload as info from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where = "acid_event.plugin_id=7043 and (acid_event.plugin_sid=18110 or acid_event.plugin_sid=18112 or acid_event.plugin_sid=18142)"
 select = "select  " + what + " where " + where + " and " + when + " order by time"
@@ -68,7 +68,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         outstr = outstr + ';' + row[2].replace(';',',').strip()
         outstr = outstr + ';' + row[3].replace(';',',').strip()
         outstr = outstr + ';' + row[4].replace(';',',').strip()
-        # Извлекаем из payload строку с описанием операции
+        # РР·РІР»РµРєР°РµРј РёР· payload СЃС‚СЂРѕРєСѓ СЃ РѕРїРёСЃР°РЅРёРµРј РѕРїРµСЂР°С†РёРё
         try:
             info = row[5].split('.inbank.msk: ', 1)[-1].split('Subject:',1)[0]
         except:
@@ -79,7 +79,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # global and universal group change
-tabheader=u'\n\n\nИзменение глобальных групп за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nРР·РјРµРЅРµРЅРёРµ РіР»РѕР±Р°Р»СЊРЅС‹С… РіСЂСѓРїРї Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     out.write(tabheader + colheader) 
@@ -93,14 +93,14 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         outstr = row[0].replace(';',',').strip()
         outstr = outstr + ';' + str(row[1]).replace(';',',').strip()
         outstr = outstr + ';' + row[2].replace(';',',').strip()
-        # извлекаем название группы из payload
+        # РёР·РІР»РµРєР°РµРј РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРїС‹ РёР· payload
         try:
             object = row[4].split('Group Name: ',1)[-1].split('Group',1)[0]
         except:
             object = 'None'
         outstr = outstr + ';' + object.replace(';',',').strip()
         outstr = outstr + ';' + row[3].replace(';',',').strip()
-        # извлекаем описание операции из payload, если не получится запишем payload как есть
+        # РёР·РІР»РµРєР°РµРј РѕРїРёСЃР°РЅРёРµ РѕРїРµСЂР°С†РёРё РёР· payload, РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёС‚СЃСЏ Р·Р°РїРёС€РµРј payload РєР°Рє РµСЃС‚СЊ
         try:
             info = row[4].split('.inbank.msk: ', 1)[-1].split('Subject:',1)[0]
         except:
@@ -119,14 +119,14 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         outstr = row[0].replace(';',',').strip()
         outstr = outstr + ';' + str(row[1]).replace(';',',').strip()
         outstr = outstr + ';' + row[2].replace(';',',').strip()
-        # извлекаем название группы из payload
+        # РёР·РІР»РµРєР°РµРј РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРїС‹ РёР· payload
         try:
             object = row[4].split('Group Name: ',1)[-1].split('Group',1)[0]
         except:
             object = 'None'
         outstr = outstr + ';' + object.replace(';',',').strip()
         outstr = outstr + ';' + row[3].replace(';',',').strip()
-        # извлекаем имя пользователя из payload, если не получится запишем payload как есть
+        # РёР·РІР»РµРєР°РµРј РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· payload, РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёС‚СЃСЏ Р·Р°РїРёС€РµРј payload РєР°Рє РµСЃС‚СЊ
         try:
             info = string.capwords(row[4].lower().split('cn=', 1)[-1].split(',ou=',1)[0])
         except:
@@ -150,14 +150,14 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         except:
             operator = 'None'
         outstr = outstr + ';' + operator.replace(';',',').strip()
-        # извлекаем название группы из payload
+        # РёР·РІР»РµРєР°РµРј РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРїС‹ РёР· payload
         try:
             object = row[3].split('Account Domain',1)[-1].split('Account Name: ',1)[-1].split('Account Name: ',1)[-1].split(' Account',1)[0]
         except:
             object = 'None'
         outstr = outstr + ';' + object.replace(';',',').strip()
         outstr = outstr + ';' + row[2].replace(';',',').strip()
-        # извлекаем имя пользователя из payload, если не получится запишем payload как есть
+        # РёР·РІР»РµРєР°РµРј РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· payload, РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёС‚СЃСЏ Р·Р°РїРёС€РµРј payload РєР°Рє РµСЃС‚СЊ
         try:
             info = string.capwords(row[3].lower().split('cn=', 1)[-1].split(',ou=',1)[0])
         except:
@@ -168,7 +168,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
 out.close()
 # ---
 # Local group change
-tabheader=u'\n\n\nИзменение локальных групп за период ' + startdate + ' - ' + enddate + '\n\n'
+tabheader=u'\n\n\nРР·РјРµРЅРµРЅРёРµ Р»РѕРєР°Р»СЊРЅС‹С… РіСЂСѓРїРї Р·Р° РїРµСЂРёРѕРґ ' + startdate + ' - ' + enddate + '\n\n'
 
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
@@ -182,14 +182,14 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         outstr = row[0].replace(';',',').strip()
         outstr = outstr + ';' + str(row[1]).replace(';',',').strip()
         outstr = outstr + ';' + row[2].replace(';',',').strip()
-        # извлекаем название группы из payload
+        # РёР·РІР»РµРєР°РµРј РЅР°Р·РІР°РЅРёРµ РіСЂСѓРїРїС‹ РёР· payload
         try:
             object = row[4].split('Group Name: ',1)[-1].split('Group',1)[0]
         except:
             object = 'None'
         outstr = outstr + ';' + object.replace(';',',').strip()
         outstr = outstr + ';' + row[3].replace(';',',').strip()
-        # извлекаем имя пользователя из payload, если не получится запишем payload как есть
+        # РёР·РІР»РµРєР°РµРј РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· payload, РµСЃР»Рё РЅРµ РїРѕР»СѓС‡РёС‚СЃСЏ Р·Р°РїРёС€РµРј payload РєР°Рє РµСЃС‚СЊ
         try:
             info = row[4].split('Member: ', 1)[-1].split(' Account',1)[0]
         except:
