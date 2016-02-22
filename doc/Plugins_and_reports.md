@@ -151,7 +151,7 @@
 
 Для работы этих плагинов на TMG установлен агент SNARE Epilog и настроен на отправку на ossim логов веб-прокси и файрвол-сервиса.
 
-**Важно**. необходим `jailbreak_ossim_for_esguardian_plugins` (смотрите `jailbreak_for_esguardian_plugins.md`)
+**Важно**. необходим `jailbreak-ossim-for-esguardian-plugins.sh` (смотрите `jailbreak_for_esguardian_plugins.md`)
 
         Название:       tmg-web
         Функционал:     Обрабатывает данные поступающие в syslog 
@@ -183,8 +183,9 @@
             Файл со списком нежелательных URL
                 /etc/my_ossim/unwanted_urls.list
 
-**Важно:** данные этого плагина tmg-web использует также плагин activesync-monitor.
- 
+**Важно:** данные плагина `tmg-web` использует также плагин `activesync-monitor`.  
+
+         
         Название:       tmg-fws
         Функционал:     Обрабатывает данные поступающие в syslog от агента SNARE Epilog, 
                         размещенного на сервере PRX. Читает и парсит ISAFWSLog в формате w3c. 
@@ -246,7 +247,7 @@
 
 ### Плагин для отслеживания соединений ActiveSync. ###
 
-**Важно:** использует данные плагина tmg-web.
+**Важно:** использует данные плагина `tmg-web`.
 
         Название:       activesync-monitor
         Функционал:     Отслеживает получение команды Sync 
@@ -298,6 +299,6 @@
 **rarep.py** - отчет о подключениях удаленного доступа, как Cisco AnyConnect, так и ActiveSync.   
 **tmgrep.py** - отчет о событиях отправки большого объема данных из внутренней сети на внешние адреса (DLP).  
 
-**Важно**. Для отчетов необходим `jailbreak_ossim_for_esguardian_plugins` (смотрите `jailbreak_for_esguardian_plugins.md`)
+**Важно**. Для отчетов необходим `jailbreak-ossim-for-esguardian-plugins.sh` (смотрите `jailbreak_for_esguardian_plugins.md`)
 
 
