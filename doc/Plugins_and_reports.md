@@ -183,7 +183,8 @@
             Файл со списком нежелательных URL
                 /etc/my_ossim/unwanted_urls.list
 
-**Важно:** данные этого плагина tmg-web использует также плагин activesync-monitor.
+**Важно:** данные этого плагина tmg-web использует также плагин activesync-monitor.  
+
  
         Название:       tmg-fws
         Функционал:     Обрабатывает данные поступающие в syslog от агента SNARE Epilog, 
