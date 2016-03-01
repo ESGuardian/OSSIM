@@ -22,7 +22,7 @@ pi = datetime.timedelta(minutes=3)
 #Set some vars
 #stats file is smaller...
 otx_ip_repfile =  '/etc/ossim/server/reputation.data'
-my_ip_repfile = '/etc/my_ossim/my_reputation.data'
+my_ip_repfile = '/etc/esguard_ossim/my_reputation.data'
 mycharset = 'cp1251'
 
 #You may want to extend this directory lower to a specific collector.  You probably don't want to run this against netflow from perimeter for instance

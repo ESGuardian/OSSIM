@@ -40,12 +40,12 @@ pu_need_update = False
 with open ('/usr/share/alienvault/ossim-agent/ParserUtil.py', 'r') as f:
     pu=f.read()
 f.close()
-if not 'my ParserUtil tail' in  pu:
+if not 'ESGuardParserUtil' in  pu:
     cmd = 'cp -f /usr/share/alienvault/ossim-agent/ParserUtil.py /usr/share/alienvault/ossim-agent/ParserUtil.py.myreconfig.bak'
     p = subprocess.Popen (cmd, shell=True)
     p_stutus = p.wait()
     
-    cmd = 'cat /usr/local/bin/my_ParserUtil.tail >> /usr/share/alienvault/ossim-agent/ParserUtil.py'
+    cmd = 'echo "from ESGuardParserUtil import *" >> /usr/share/alienvault/ossim-agent/ParserUtil.py'
     p = subprocess.Popen (cmd, shell=True)
     p_stutus = p.wait()   
 DELIM
