@@ -28,13 +28,13 @@
             Файл конфигурации ротации логов
                 /etc/logrotate.d/my_ossim-devices
             Файл с собственным списком плохих адресов
-                /etc/my_ossim/my_reputation.data
+                /etc/esguard_ossim/my_reputation.data
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/nfotx.sql
+                /etc/esguard_ossim/nfotx.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/nfotx.cfg
             my_reputation.data
-                /etc/my_ossim/ my_reputation.data
+                /etc/esguard_ossim/my_reputation.data
  
 Для просмотра событий на консоли использовать фильтр по DS Group “NFOTX”.
 
@@ -64,7 +64,7 @@
             Файл конфигурации ротации логов
                 /etc/logrotate.d/my_ossim-devices
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/myILO.sql
+                /etc/esguard_ossim/myILO.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/myILO.cfg
          
@@ -92,7 +92,7 @@
             Файл конфигурации ротации логов
                 нет
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/msfep.sql
+                /etc/esguard_ossim/msfep.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/msfep.cfg
                 
@@ -177,11 +177,13 @@
             Файл конфигурации ротации логов
                 /etc/logrotate.d/my_ossim-devices
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/tmg-web.sql
+                /etc/esguard_ossim/tmg-web.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/tmg-web.cfg
-            Файл со списком нежелательных URL
-                /etc/my_ossim/unwanted_urls.list
+            Файл со списком специально отслеживаемых URL
+                /etc/esguard_ossim/monitored_urls.list
+            Файл со списком специально не отслеживаемых URL
+                /etc/esguard_ossim/unmonitored_urls.list
 
 **Важно:** данные плагина `tmg-web` использует также плагин `activesync-monitor`.  
 
@@ -204,7 +206,7 @@
             Файл конфигурации ротации логов
                 /etc/logrotate.d/my_ossim-devices
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/tmg-fws.sql
+                /etc/esguard_ossim/tmg-fws.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/tmg-fws.cfg
 
@@ -239,9 +241,9 @@
             собственно лог
                 /var/log/user-logon-monitor.log
             Файл конфигурации ротации логов
-                /etc/logrotate.d/my_ossim-devices
+                /etc/logrotate.d/esguard_ossim-devices
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/user-logon-monitor.sql
+                /etc/esguard_ossim/user-logon-monitor.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/user-logon-monitor.cfg
 
@@ -281,11 +283,67 @@
             собственно лог
                 /var/log/activesync-monitor.log
             Файл конфигурации ротации логов
-                /etc/logrotate.d/my_ossim-devices
+                /etc/logrotate.d/esguard_ossim-devices
             Скрипт конфигурации mySQL для плагина
-                /etc/my_ossim/activesync-monitor.sql
+                /etc/esguard_ossim/activesync-monitor.sql
             Собственно плагин
                 /etc/ossim/agent/plugins/activesync-monitor.cfg
+
+### Плагин Zgate ###
+
+**Важно**. необходим `jailbreak-ossim-for-esguardian-plugins.sh` (смотрите `jailbreak_for_esguardian_plugins.md`)
+
+        Название:       zgate
+        Функционал:     логирует  события Zecurion Zgate.
+        
+        PluginID        9008
+        PlaginCFG       zgate.cfg
+        DataSourceName  zgate
+        Signature 
+            Загружен файл           sid: 1
+			Отправлено письмо		sid: 2
+			Получено сообщение 		sid: 3
+			Отправлено сообщение 	sid: 4
+			Исходящая почта 		sid: 5
+			Изменен статус 			sid: 6
+			Входящая почта 			sid: 7
+			Новое событие			sid: 9999
+            
+        Размещение файлов:
+            Программа необходимая для работы
+                нет
+            Конф для rsyslog
+                нет
+            собственно лог
+                нет (источник БД MSSQL)
+            Файл конфигурации ротации логов
+                нет
+            Скрипт конфигурации mySQL для плагина
+                /etc/esguard_ossim/zgate.sql
+            Собственно плагин
+                /etc/ossim/agent/plugins/zgate.cfg
+			Таблица сигнатур
+				/etc/esguard_ossim/zgate_translation.table
+                
+
+Для работы плагина внесены изменения в базу данных zgate. Cоздана вьюха:
+
+        CREATE VIEW ossim AS
+		SELECT [zgate].[dbo].[ZMAIL_Message].[MessageID]
+		      ,[DateTime]
+		      ,[Subject]
+		      ,[TypeSubject]
+		      ,[RCPT]
+		      ,[MAIL_FROM]
+		      ,[FullAttFileList]
+		      ,[DestFullName]
+		      ,[ServiceName]
+		      ,[InCarantine]
+		      ,[zgate].[dbo].[ZMAIL_Categories].[CatName]
+		  FROM [zgate].[dbo].[ZMAIL_Message] LEFT OUTER JOIN [zgate].[dbo].[ZMAIL_Message_Categories] ON [zgate].[dbo].[ZMAIL_Message].[MessageID]=[zgate].[dbo].[ZMAIL_Message_Categories].[MessageID] 
+		  LEFT OUTER JOIN [zgate].[dbo].[ZMAIL_Categories] ON [zgate].[dbo].[ZMAIL_Message_Categories].[CatID]=[zgate].[dbo].[ZMAIL_Categories].[CatID]
+
+Добавлен пользователь username с правами чтения этой вьюхи (метод аутентификации SQL native)
 
 ## Отчеты ##
 
