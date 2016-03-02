@@ -50,8 +50,8 @@ mycharset='cp1251'
 dbcharset='utf8'
 colheader=u'Время;Источник;Внешний IP;Место;Репутация хоста\n'
 my_rep_data = {}
-if os.path.isfile('/etc/my_ossim/my_reputation.data'):
-    with codecs.open('/etc/my_ossim/my_reputation.data', 'r', encoding=mycharset) as f:
+if os.path.isfile('/etc/esguard_ossim/my_reputation.data'):
+    with codecs.open('/etc/esguard_ossim/my_reputation.data', 'r', encoding=mycharset) as f:
         for line in f:
             if '#' in line:
                 (ip,rep) = line.strip().split('#')
