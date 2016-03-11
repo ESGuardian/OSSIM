@@ -106,44 +106,44 @@ cursor.execute(select)
 row=cursor.fetchone()
 try:
     while row:
-        uname = str(row[0]).decode(dbcharset)   
+        uname = row[0]
         uname = uname.strip().lower()
-        udom = str(row[1]).decode(dbcharset) 
+        udom = row[1]
         udom = udom.strip().strip('"').lower()
-        syslog_message = ' at ' + str(row[2]).decode(dbcharset).strip() + '; src ip: ' + str(row[3]).decode(dbcharset).strip() + '; dst ip: ' + str(row[4]).decode(dbcharset).strip() + '\n'
-        if not '@' in uname:
+        syslog_message = u' at ' + unicode(row[2]).strip() + u'; src ip: ' + unicode(row[3]).strip() + u'; dst ip: ' + unicode(row[4]).strip() + u'\n'
+        if not u'@' in uname:
             for i in my_doms_list:
                 if i[1] == udom or i[2] == udom:
                     udom = i[0]
                     break
-            uname = uname + '@' + udom
+            uname = uname + u'@' + udom
         if uname in logon_dict:
             logon_history_dict[uname] = str(row[2]).decode(dbcharset).strip()
         else:
             logon_dict[uname] = str(row[2]).decode(dbcharset).strip()
             with codecs.open(log_cache_fullpath, 'a', encoding=mycharset) as out:
-                out.write(uname + ';' + logon_dict[uname] + '\n')
+                out.write(uname + u';' + logon_dict[uname] + u'\n')
             out.close()
             if uname in logon_history_dict:
                 dt = datetime.strptime(logon_history_dict[uname],'%Y-%m-%d %H:%M:%S')
                 dd = (row[2] - dt).days
                 if dd <5:
-                    mylog.write('=1; Hello! ' + uname + syslog_message)
+                    mylog.write(u'=1; Hello! ' + uname + syslog_message)
                 elif dd < 20:
-                    mylog.write('=2; Wellcome back! ' + uname + syslog_message)
+                    mylog.write(u'=2; Wellcome back! ' + uname + syslog_message)
                 else:
-                    mylog.write('=3; Wow ... Last time I saw you ' + str(dd) + ' days ago! ' + uname + syslog_message)
+                    mylog.write(u'=3; Wow ... Last time I saw you ' + str(dd) + u' days ago! ' + uname + syslog_message)
                 logon_history_dict[uname] = str(row[2]).decode(dbcharset).strip()
             else:
-                mylog.write('=4; New kid in town! ' + uname + syslog_message)
+                mylog.write(u'=4; New kid in town! ' + uname + syslog_message)
                 logon_history_dict[uname] = str(row[2]).decode(dbcharset).strip()
         row=cursor.fetchone()
     with codecs.open(log_history_fullpath, 'w', encoding=mycharset) as out:
         for key in logon_history_dict.keys():
-            out.write(key + ';' + logon_history_dict[key] + '\n')
+            out.write(key + u';' + logon_history_dict[key] + u'\n')
     out.close()
 except Exception:
-    mylog.write('=100;Error! no_user at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '; src ip 0.0.0.0; dst ip 0.0.0.0 '+ str(sys.exc_info()[0]) + '\n')
+    mylog.write(u'=100;Error! no_user at ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + u'; src ip 0.0.0.0; dst ip 0.0.0.0 '+ str(sys.exc_info()) + u'\n')
     raise
 mylog.close()
 conn.close()
