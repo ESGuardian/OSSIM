@@ -64,7 +64,7 @@ when = "timestamp between '" + starttime + "' and '" + endtime + "'"
 tabheader=u'\n\n\nУдаленный доступ через Cisco AnyConnect за период ' + startdate + ' - ' + enddate + '\n\n'
 colheader=u'Время;Источник;Место;Пользователь;Назначенный адрес\n'
 
-what="convert_tz(timestamp,'+00:00'," + mytz +") as time, substring_index(substring_index(userdata4,'IP <',-1),'>',1), username, substring_index(substring_index(userdata4,'IPv4 Address <',-1),'>',1) from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
+what="convert_tz(timestamp,'+00:00'," + mytz +") as time, substring_index(substring_index(data_payload,'IP <',-1),'>',1), username, substring_index(substring_index(data_payload,'IPv4 Address <',-1),'>',1) from acid_event join extra_data on (acid_event.id=extra_data.event_id)"
 where="acid_event.plugin_id=1636 and acid_event.plugin_sid=722051"
 select="select  " + what + " where " + where + " and " + when + " order by time"
 cursor.execute(select)
