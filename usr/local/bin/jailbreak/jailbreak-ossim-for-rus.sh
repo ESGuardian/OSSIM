@@ -93,7 +93,7 @@ import sys
 import subprocess
 cfg_path = '/etc/ossim/agent/config.cfg'
 new_cfg_path = '/var/local/config.tmp'
-encoding_exceptions = {'wmi-monitor':'utf8'}
+encoding_exceptions = {'wmi-monitor':'utf-8','zgate':'utf-8','oramon':'utf-8'}
 my_encoding = 'cp1251'
 with open (cfg_path,'r') as f:
    conf = f.read()
