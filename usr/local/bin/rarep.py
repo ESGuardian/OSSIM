@@ -1,6 +1,10 @@
 #! /usr/bin/python
 # -*- coding: utf8 -*-
 # автор esguardian@outlook.com
+# -------
+# version 2.0.2
+# исправлены мелкие ошибки
+# -----
 # версия 2.0.1
 # Отчет о событиях удаленного доступа
 # Собирает от стандартного плагина cisco-asa (события cisco AnyConnect) и моего плагина activesync-monitor
@@ -30,6 +34,10 @@ from OSSIM_helper import get_db_connection_data, get_place
 (dbhost,dbuser,dbpass) = get_db_connection_data()
 dbshema='alienvault_siem'
 # --- End of Database config
+
+def mystr (v,charset):
+    return str(v).decode(charset).replace(';',':').replace(',',':').strip()
+    
 
 # ---- Init 
 
@@ -80,15 +88,15 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row: 
-         stime = str(row[0]).decode(dbcharset).strip()
-         source = str(row[1]).decode(dbcharset).strip()
-         username = str(row[2]).decode(dbcharset).strip()
+         stime = mystr(row[0],dbcharset)
+         source = mystr(row[1],dbcharset)
+         username = mystr(row[2],dbcharset)
          if double_stime != stime or double_source != source or double_username != username:
              double_stime = stime
              double_source = source
              double_username = username
              place = get_place(reader, source, mycharset)
-             local_ip = str(row[3]).decode(dbcharset).strip()
+             local_ip = mystr(row[3],dbcharset)
              outstr = stime + ';' + source + ';' + place + ';' + username + ';' + local_ip + '\n'
              out.write(outstr)
          row = cursor.fetchone()
@@ -107,13 +115,13 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row: 
-         stime = str(row[0]).decode(dbcharset).strip()
-         source = str(row[5]).decode(dbcharset).strip()
+         stime = mystr(row[0],dbcharset)
+         source = mystr(row[5],dbcharset)
          place = get_place(reader, source, mycharset)
-         username = str(row[1]).decode(dbcharset).strip()
-         dev_type = str(row[2]).decode(dbcharset).strip()
-         dev_id = str(row[3]).decode(dbcharset).strip()
-         info = str(row[4]).decode(dbcharset).strip()
+         username = mystr(row[1],dbcharset)
+         dev_type = mystr(row[2],dbcharset)
+         dev_id = mystr(row[3],dbcharset)
+         info = mystr(row[4],dbcharset)
          outstr = stime + ';' + username + ';' + dev_type + ';' + dev_id + ';' + source + ';' + place + ';' + info + '\n'
          out.write(outstr)
          row = cursor.fetchone()

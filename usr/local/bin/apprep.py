@@ -1,7 +1,10 @@
 #! /usr/bin/python
 # -*- coding: utf8 -*-
 # автор esguardian@outlook.com
-# версия 2.0.1
+# версия 2.0.2
+# --------------
+# 06.05.2016 исправлены мелкие ошибки
+# -----------------------
 # Отчет об установке приложений на рабочих станциях и серверах 
 # Собирает из базы данные плагина OSSEC о событиях установки Windows/Unix приложений
 # а также данные иониторинга "нежелательных" программ (skype, torrent и т.п.)
@@ -48,7 +51,7 @@ cursor = conn.cursor()
 
 # Windows app monitor
 tabheader=u'\n\nМониторинг программ Windows за период ' + startdate + ' - ' + enddate + '\n\n'
-what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_src), 16, 10)), substring_index(substring_index(data_payload,'[INIT]',-1),'[END]',1) from acid_event join extra_data on (id=event_id)"
+what = "convert_tz(timestamp,'+00:00'," + mytz +") as time, inet_ntoa(conv(HEX(ip_dst), 16, 10)), substring_index(substring_index(data_payload,'[INIT]',-1),'[END]',1) from acid_event join extra_data on (id=event_id)"
 where = "acid_event.plugin_id=7093 and acid_event.plugin_sid=514"
 select="select " + what + " where "  + where + " and " + when + " order by time"
 cursor.execute(select)
@@ -56,7 +59,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row:
-         out.write('Windows application monitor event;' + ';'.join([str(c).decode(dbcharset).replace(';',',') for c in row]) + '\n')
+         out.write(u'Windows application monitor event;' + u';'.join([str(c).decode(dbcharset).replace(';',':').replace(',',':').strip() for c in row]) + '\n')
          row = cursor.fetchone()
 out.close()
 # ---
@@ -70,7 +73,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row:
-         out.write(';'.join([str(c).decode(dbcharset).replace(';',',') for c in row]) + '\n')
+         out.write(u';'.join([str(c).decode(dbcharset).replace(u';',u':').replace(u',',u':').strip() for c in row]) + '\n')
          row = cursor.fetchone()
 out.close()
 # ---
@@ -84,7 +87,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row:
-         out.write('Linux Package installed;' + ';'.join([str(c).decode(dbcharset).replace(';',',') for c in row]) + '\n')
+         out.write(u'Linux Package installed;' + u';'.join([str(c).decode(dbcharset).replace(';',':').replace(',',':').strip() for c in row]) + '\n')
          row = cursor.fetchone()
 out.close()
 # ---
@@ -98,7 +101,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row:
-         out.write('Integrity checksum changed.;' + ';'.join([str(c).decode(dbcharset).replace(';',',') for c in row]) + '\n')
+         out.write(u'Integrity checksum changed.;' + u';'.join([str(c).decode(dbcharset).replace(';',':').replace(',',':').strip() for c in row]) + '\n')
          row = cursor.fetchone()
 out.close()
 # ---

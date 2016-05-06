@@ -16,7 +16,8 @@ from OSSIM_helper import get_db_connection_data
 (dbhost,dbuser,dbpass) = get_db_connection_data()
 dbshema='alienvault_siem'
 # --- End of Database config
-
+def mystr (v,charset):
+    return str(v).decode(charset).replace(';',':').replace(',',':').strip()
 # ---- Init 
 
 period=1
@@ -55,7 +56,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
      out.write(tabheader + colheader) 
      row = cursor.fetchone() 
      while row:
-         out.write(';'.join([str(c).decode(dbcharset).replace(';',',').strip() for c in row]) + '\n')
+         out.write(';'.join([mystr(c,dbcharset) for c in row]) + '\n')
          row = cursor.fetchone()
 out.close()
 # --- End of All

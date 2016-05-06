@@ -21,6 +21,9 @@ from OSSIM_helper import get_db_connection_data, get_place
 dbshema='alienvault_siem'
 # --- End of Database config
 
+def mystr (v,charset):
+    return str(v).decode(charset).replace(';',':').replace(',',':').strip()
+    
 # ---- Init 
 
 
@@ -76,7 +79,7 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     out.write(tabheader + colheader) 
     row = cursor.fetchone() 
     while row:
-        dst = row[2].strip()
+        dst = mystr(row[2],dbcharset)
         if dst not in dup: 
             dup.append(dst)        
             if row[3] is None:
@@ -85,14 +88,14 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
                 else:
                     rep = 'None'
             else:
-                rep = str(row[3]).decode(dbcharset) 
+                rep = mystr(row[3],dbcharset) 
             if rep.lower() != 'false':
                 place = get_place(reader, dst, mycharset)
-                outstr = str(row[0]).decode(dbcharset).replace(';',',').strip()
-                outstr = outstr + ';' + str(row[1]).decode(dbcharset).replace(';',',').strip() 
+                outstr = mystr(row[0],dbcharset)
+                outstr = outstr + ';' + mystr(row[1],dbcharset) 
                 outstr = outstr + ';' + dst
                 outstr = outstr + ';' + place
-                outstr = outstr + ';' + rep.replace(';',',').strip()             
+                outstr = outstr + ';' + rep.replace(';',':').replace(',',':').strip()             
                 list.append(outstr)
                 out.write(outstr + '\n')
         row = cursor.fetchone()
@@ -109,6 +112,9 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         out.write(tabheader + colheader) 
         for line in output.splitlines():
             fields = line.rstrip().split()
+            if len(fields) >10:
+                fields[8] = fields[8] + ' ' + fields[9]
+                fields[9] = fields[10]
             stime = fields[0] + ' ' + fields[1]
             sduration = fields[2]
             sproto = fields[3]

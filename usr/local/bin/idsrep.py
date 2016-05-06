@@ -1,7 +1,11 @@
 #! /usr/bin/python
 # -*- coding: utf8 -*-
 # author Eugene Sokolov esguardian@outlook.com
-# version 2.0.1 
+# version 2.0.2
+# ------
+# 06.05.2016 Исправлены мелкие ошибки
+# -------
+# version 2.0.1
 # добавлен фильтр для исключения сигнатур.
 # Фильтр применять с осторожностью, каждая исключенная сигнатура может быть признаком атаки,
 # если вы ее отключили, используйте другой признак для детектирования аналогичной атаки.
@@ -42,6 +46,9 @@ from OSSIM_helper import get_db_connection_data, get_place
 dbschema='alienvault_siem'
 asset_dbschema='alienvault'
 # --- End of Database config
+
+def mystr (v,charset):
+    return str(v).decode(charset).replace(';',':').replace(',',':').strip()
 
 # ---- Init 
 period=1
@@ -152,8 +159,8 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
     out.write(tabheader + colheader) 
     row = cursor.fetchone() 
     while row:
-        src = row[2].strip() 
-        plugin_sid = str(row[0]).strip() 
+        src = mystr(row[2],dbcharset) 
+        plugin_sid = mystr(row[0],dbcharset) 
         if plugin_sid not in filtered_sids:
             if row[4] is None:
                 if src in my_rep_data:
@@ -161,23 +168,23 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
                 else:
                     rep = 'None'
             else:
-                rep = str(row[4]).decode(dbcharset) 
+                rep = mystr(row[4],dbcharset) 
             if rep.lower() != 'false':
                 place = get_place(reader, src, mycharset)
-                outstr = str(row[1]).decode(dbcharset).replace(';',',').strip()        
+                outstr = mystr(row[1],dbcharset)        
                 outstr = outstr + ';' + src
                 outstr = outstr + ';' + place
-                outstr = outstr + ';' + row[3].strip()
-                outstr = outstr + ';' + rep.replace(';',',')
-                plugin_sid = str(row[0]).strip() 
+                outstr = outstr + ';' + mystr(row[3],dbcharset)
+                outstr = outstr + ';' + rep.replace(';',':').replace(',',':')
+                plugin_sid = mystr(row[0],dbcharset) 
                 list.append(outstr)
                 # now get signature name
                 signature_name = u'Unknown'
                 cursor_av.execute('select name from plugin_sid where plugin_id=1001 and sid=' + plugin_sid)
                 row_av = cursor_av.fetchone()
                 for c in row_av:
-                    signature_name = str(c).decode(dbcharset)
-                outstr = signature_name.replace(';',',') + ';' + outstr
+                    signature_name = mystr(c,dbcharset)
+                outstr = signature_name + ';' + outstr
                 out.write(outstr + '\n')
         row = cursor.fetchone()
     # and now add to the file netflow data for each event but deduplicate
@@ -200,6 +207,9 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
             out.write(tabheader + colheader)
             for line in output.splitlines():
                 fields = line.rstrip().split()
+                if len(fields) > 10:
+                    fields[8] = fields[8] + ' ' + fields[9]
+                    fields[9] = fields[10]
                 stime = fields[0] + ' ' + fields[1]
                 sduration = fields[2]
                 sproto = fields[3]
