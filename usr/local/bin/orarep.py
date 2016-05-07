@@ -13,7 +13,10 @@ def mystr (v):
 
 (dbhost, dbuser, dbpass, dbschema, dbcharset)=('host-ip', 'username', 'userpass', 'oramon', 'utf8') # MySQL connection params for oramon db
 
-select = "SELECT * FROM ossim_log where (timestamp >= timestamp(CURRENT_DATE() - INTERVAL %s DAY, '09:00:00') and timestamp < timestamp(CURRENT_DATE(), '09:00:00')) and not((alert_code = 7 or alert_code = 6) and uname = 'tb-user') order by id"
+select_except = " and not((alert_code = 7 or alert_code = 6) and uname = 'tb-user') " # Исключение
+# select_except = " "
+
+select = "SELECT * FROM ossim_log where (timestamp >= timestamp(CURRENT_DATE() - INTERVAL %s DAY, '09:00:00') and timestamp < timestamp(CURRENT_DATE(), '09:00:00'))" + select_except + "order by id"
 
 colheader = u"log_id, Timestamp, Alert_code, Alert, UserName, Host, Host_ip, ORA_User, ORA_Object, Message, RAW_id\n"
 
