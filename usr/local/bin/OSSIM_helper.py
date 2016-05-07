@@ -39,7 +39,11 @@ def get_place(reader, src, mycharset):
     # возможность конвертировать результат перед его возвратом. Если конвертировать нельзя, 
     # возврощаем строку 'Хренпоймигде'. decode('utf8') на этой строке - это правильно. Долго объяснять почему. 
     
-    ip = IPAddress(src)
+    try:
+        ip = IPAddress(src)
+    except:
+        place = u'INVALID_IP'
+        return place
     if ip.is_private():
         place = u'Local'
         return place

@@ -10,6 +10,9 @@
 
 Добавлена предварительная версия плагина для Zecurion Zgate.
 
+Добавлена предварительная версия плагина oramon. Это монитор журналов аудита Oracle, сиотреть здесь репозитарий [oramon](https://bitbucket.org/esguardian/oramon)
+
+
 **Важно**. Если применялся джайлбрейк более ранних версий, то необходимо вручную исправить файл `/usr/share/alienvault/ossim-agent/ParserUtil.py` удалив из него всё содержимое после строки `# my ParserUtil tail`. Кроме того необходимо предварительно уничтожить файл `/usr/local/bin/jailbreak/check_esguardian_config.py`. После чего заново выполнить `jailbreak-ossim-for-esguardian-plugins.sh`.
 
 * v.2.0.1
