@@ -231,7 +231,10 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
             outstr = outstr + ';' + unicode(row[3])
         outstr = outstr + ';' + unicode(row[4])
         if row[0] == 26:
-            outstr = outstr + ';' + unicode(row[3])
+            if unicode(row[3]) != u'None':
+                outstr += ';' + unicode(row[3])                
+            else:
+                outstr += ';' + unicode(row[5]).split('ora_role')[-1].split('granted')[0].strip()
         else:
             outstr = outstr + ';' + unicode(row[5])
         out.write(outstr + '\n')
