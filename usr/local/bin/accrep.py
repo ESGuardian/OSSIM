@@ -208,7 +208,7 @@ conn_av = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=asset_dbsc
 cursor_av = conn_av.cursor() 
 tabheader=u'\n\n\nИзменение учетных записей Oracle (АБС) за период ' + startdate + ' - ' + enddate + '\n\n'
 what = "plugin_sid as action, convert_tz(timestamp,'+00:00'," + mytz +") as time, username as operator, userdata3 as object, userdata1 as source, userdata4 as info from acid_event left outer join extra_data on (acid_event.id=extra_data.event_id)"
-where = "acid_event.plugin_id=9009 and (acid_event.plugin_sid=24 or acid_event.plugin_sid=26)"
+where = "acid_event.plugin_id=9009 and (acid_event.plugin_sid in (24,26,30))"
 select = "select  " + what + " where " + where + " and " + when + " order by time"
 cursor.execute(select)
 with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
@@ -227,6 +227,9 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
         if row[0] == 26:
             grantee = unicode(row[5]).split('granted for')[-1].split('by')[0].strip()
             outstr = outstr + ";" + grantee
+        elif row[0] == 30:
+            grantee = unicode(row[5]).split('by')[0].split('from')[-1].strip()
+            outstr = outstr + ";" + grantee
         else:
             outstr = outstr + ';' + unicode(row[3])
         outstr = outstr + ';' + unicode(row[4])
@@ -235,6 +238,11 @@ with codecs.open(outfullpath, 'a', encoding=mycharset) as out:
                 outstr += ';' + unicode(row[3])                
             else:
                 outstr += ';' + unicode(row[5]).split('ora_role')[-1].split('granted')[0].strip()
+        elif row[0] == 30:
+            if unicode(row[3]) != u'None':
+                outstr += ';' + unicode(row[3])                
+            else:
+                outstr += ';' + unicode(row[5]).split('ora_role')[-1].split('from')[0].strip()
         else:
             outstr = outstr + ';' + unicode(row[5])
         out.write(outstr + '\n')

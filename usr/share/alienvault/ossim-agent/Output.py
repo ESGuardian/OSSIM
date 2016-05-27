@@ -36,6 +36,8 @@ import re
 import string
 import sys
 import uuid
+from pymongo import MongoClient
+from bson import BSON
 
 #
 # LOCAL IMPORTS
@@ -275,90 +277,45 @@ class OutputDB(OutputPlugins):
         self.activated = False
 
 class OutputESGuard(OutputPlugins):
-    import MySQLdb
+    
 
     def __init__(self, conf):
+        
         logger.info("Added ESGuard output")
         logger.debug("OutputDB options: %s" % (conf.hitems("output-esguard")))
 
         self.conf = conf
 
-#        type = self.conf.get('output-db', 'type')
-        dbhost = self.conf.get('output-esguard', 'host')
-        dbschema = self.conf.get('output-esguard', 'base')
-        dbuser = self.conf.get('output-esguard', 'user')
-        dbpass = self.conf.get('output-esguard', 'pass')
-
-        self.conn = MySQLdb.connect(host=dbhost, user=dbuser, passwd=dbpass, db=dbschema, charset='utf8')
-        self.cursor = self.conn.cursor()
-        self.activated = True
+        self.dbhost = self.conf.get('output-esguard', 'host')
+        self.dbport = self.conf.get('output-esguard', 'port')
+        self.dbschema = self.conf.get('output-esguard', 'base')
+        self.dbuser = self.conf.get('output-esguard', 'user')
+        self.dbpass = self.conf.get('output-esguard', 'pass')
 
 
-    def event(self, e):
-        self.event_attrs = [
-            "device",
-            "plugin_id",
-            "plugin_sid",
-            "protocol",
-            "src_ip",
-            "src_port",
-            "dst_ip",
-            "dst_port",
-            "username",
-            "filename",
-            "userdata1",
-            "userdata2",
-            "userdata3",
-            "userdata4",
-            "userdata5",
-            "userdata6",
-            "userdata7",
-            "userdata8",
-            "userdata9",
-            "occurrences",
-            "log",
-            "snort_sid",
-            "snort_cid",
-            "fdate",
-            "tzone",
-            "binary_data",
-            "pulses"
-        ]
-        if self.conn is not None and e["event_type"] == "event" \
-                and self.activated:
+        mongodbURI = "mongodb://" + self.dbuser + ":" + self.dbpass + "@" + self.dbhost + ":" + self.dbport + "/" + self.dbschema
+        try :
+            self.conn = MongoClient(mongodbURI)
+            self.log_db = self.conn[self.dbschema]
+            self.event_coll = self.log_db['logger']
+            self.activated = True
+        except Exception, e:
+            logger.error(": Error connecting to Mongodb %s" % (e))
 
-            # build query
-            query = 'INSERT INTO event ('
+        
+    def event(self, e):          
+        
+        if e["event_type"] == "event"  and self.activated:            
 
-            for attr in self.event_attrs:
-                query += "%s," % (attr)
-
-            query = query.rstrip(',')
-            query += ") VALUES ("
-
-            for attr in self.event_attrs:
-                value = ''
-
-                if e[attr] is not None:
-                    value = e[attr]
-
-                query += "'%s'," % (value)
-
-            query = query.rstrip(',')
-            query += ");"
-
-            logger.debug(query)
-
-            try:
-                self.cursor.execute(query)
-                self.conn.commit()
-
-            except Exception, e:
-                logger.error(": Error executing query (%s)" % (e))
+            try :
+                self.event_coll.insert_one(BSON.decode(e.to_bson_esguard()))
+            except :
+                logger.error(": Error insert data to mongodb log_coll. Plugin_id is %s. Retry as binary" % (e['plugin_id']))  
+                self.event_coll.insert_one(BSON.decode(e.to_bson()))
 
 
     def shutdown(self):
-        logger.info("Closing database connection..")
+        logger.info("Closing ESGuard output ..")
         self.conn.close()
         self.activated = False
 
@@ -464,6 +421,7 @@ if __name__ == "__main__":
     Output.event(event)
     Output.add_csv_output()
     Output.event(event)
+    
 
 # vim:ts=4 sts=4 tw=79 expandtab:
 
