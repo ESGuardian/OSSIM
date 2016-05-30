@@ -309,9 +309,11 @@ class OutputESGuard(OutputPlugins):
 
             try :
                 self.event_coll.insert_one(BSON.decode(e.to_bson_esguard()))
-            except :
-                logger.error(": Error insert data to mongodb log_coll. Plugin_id is %s. Retry as binary" % (e['plugin_id']))  
-                self.event_coll.insert_one(BSON.decode(e.to_bson()))
+            except :                 
+                try : 
+                    self.event_coll.insert_one(BSON.decode(e.to_bson()))
+                except Exception, e :
+                    logger.error(": Error insert data to mongodb log_coll.  %s" % (e)) 
 
 
     def shutdown(self):
