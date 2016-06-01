@@ -36,8 +36,10 @@ import re
 import string
 import sys
 import uuid
+import MySQLdb
 from pymongo import MongoClient
-from bson import BSON
+# from bson import BSON
+# from bson.binary import Binary
 
 #
 # LOCAL IMPORTS
@@ -277,21 +279,54 @@ class OutputDB(OutputPlugins):
         self.activated = False
 
 class OutputESGuard(OutputPlugins):
-    
-
+           
     def __init__(self, conf):
         
         logger.info("Added ESGuard output")
         logger.debug("OutputDB options: %s" % (conf.hitems("output-esguard")))
 
         self.conf = conf
-
         self.dbhost = self.conf.get('output-esguard', 'host')
         self.dbport = self.conf.get('output-esguard', 'port')
         self.dbschema = self.conf.get('output-esguard', 'base')
         self.dbuser = self.conf.get('output-esguard', 'user')
         self.dbpass = self.conf.get('output-esguard', 'pass')
+        
+        with open('/etc/ossim/ossim_setup.conf','r') as server_conf:
+            lines = server_conf.readlines()
+            for line in lines:
+                (name,value)=('','')
+                if '=' in line:
+                    (name,value) = line.strip().split('=',1)
+                if name == 'db_ip':
+                    server_dbhost = value
+                if name == 'pass':
+                    server_dbpass = value
+                if name == 'user':
+                    server_dbuser = value
+        server_conf.close()
+        
+        self.plugins_db = {}
+        
+        server_conn = MySQLdb.connect(host=server_dbhost, user=server_dbuser, passwd=server_dbpass, db='alienvault', charset='utf8') 
+        server_cursor = server_conn.cursor()
+        server_cursor.execute("select id, name from plugin")
+        plugs = []
+        row = server_cursor.fetchone() 
+        while row :
+            plugs.append((int(row[0]),str(row[1])))
+            row = server_cursor.fetchone() 
+        for (plug_id, plug_name) in plugs : 
+            signatures = {}
+            server_cursor.execute("select sid, name from plugin_sid where plugin_id = %s",(plug_id,))
+            row = server_cursor.fetchone() 
+            while row :
+                signatures[int(row[0])] = unicode(row[1])
+                row = server_cursor.fetchone() 
+            self.plugins_db[plug_id] = (plug_name,signatures)
+        server_conn.close()
 
+        
 
         mongodbURI = "mongodb://" + self.dbuser + ":" + self.dbpass + "@" + self.dbhost + ":" + self.dbport + "/" + self.dbschema
         try :
@@ -305,21 +340,31 @@ class OutputESGuard(OutputPlugins):
         
     def event(self, e):          
         
-        if e["event_type"] == "event"  and self.activated:            
+        if self.conn is not None and e["event_type"] == "event" \
+                and self.activated:    
+
+            (plug_name,plug_sig) = self.plugins_db[int(e['plugin_id'])]
+            plug_name = "" if plug_name is None else plug_name
+            
+            if plug_sig is None:
+                sig_name = ""
+            else :
+                sig_name = plug_sig[int(e['plugin_sid'])]
+                sig_name = "" if sig_name is None else sig_name         
 
             try :
-                self.event_coll.insert_one(BSON.decode(e.to_bson_esguard()))
-            except :                 
-                try : 
-                    self.event_coll.insert_one(BSON.decode(e.to_bson()))
-                except Exception, e :
-                    logger.error(": Error insert data to mongodb log_coll.  %s" % (e)) 
-
+                self.event_coll.insert_one(e.to_esguard(plug_name,sig_name))
+            except Exception, e:                 
+                logger.error(": Error insert data to mongodb log_coll.  %s" % (e))  
+                    
+      
 
     def shutdown(self):
         logger.info("Closing ESGuard output ..")
         self.conn.close()
         self.activated = False
+        
+    
 
 
 class OutputIDM(OutputPlugins):

@@ -92,55 +92,7 @@ class Event(Command):
         'login': 'bool',
         'pulses': 'object'
     }
-    EVENT_BSON_ESGUARD = {
-        'type': 'str',
-        'date': 'int64',
-        'sensor': 'str',
-        'device': 'str',
-        'interface': 'str',
-        'plugin_id': 'int32',
-        'plugin_sid': 'int32',
-        'priority': 'int32',
-        'protocol': 'str',
-        'src_ip': 'str',
-        'dst_ip': 'str',
-        'src_port': 'int32',
-        'dst_port': 'int32',
-        'username': 'str',
-        'password': 'str',
-        'filename': 'str',
-        'userdata1': 'str',
-        'userdata2': 'str',
-        'userdata3': 'str',
-        'userdata4': 'str',
-        'userdata5': 'str',
-        'userdata6': 'str',
-        'userdata7': 'str',
-        'userdata8': 'str',
-        'userdata9': 'str',
-        'occurrences': 'int32',
-        'log': 'str',
-        'snort_sid': 'int32',
-        'snort_cid': 'int32',
-        'fdate': 'str',
-        'tzone': 'double',
-        'ctx': 'uuid',
-        'sensor_id': 'uuid',
-        'event_id': 'uuid',
-        'binary_data': 'str',
-        'domain': 'str',
-        'mail': 'str',
-        'os': 'str',
-        'cpu': 'str',
-        'video': 'str',
-        'service': 'str',
-        'software': 'str',
-        'ip': 'str',
-        'mac': 'str',
-        'inventory_source': 'int32',
-        'login': 'bool',
-        'pulses': 'object'
-    }
+    
     EVENT_BASE64 = [
         'username',
         'password',
@@ -303,9 +255,9 @@ class Event(Command):
             event_data['event_id'] = Event.__get_uuid()
         return BSON.encode({self.EVENT_TYPE: event_data})
         
-    def to_bson_esguard(self):
+    def to_esguard(self,plug_name,sig_name):
         event_data = {}
-        for (attr, t) in self.EVENT_BSON_ESGUARD.items():
+        for (attr, t) in self.EVENT_BSON.items():
             if self[attr]:
                 data = self[attr]
                 # Now code the data
@@ -319,7 +271,10 @@ class Event(Command):
                 elif t == 'int64':
                     event_data[attr] = long(data)
                 elif t == 'binary':
-                    event_data[attr] = Binary(bytes(data))
+                    try :
+                        event_data[attr] = str(data).decode('utf8')
+                    except :
+                        event_data[attr] = Binary(bytes(data))
                 elif t == 'double':
                     event_data[attr] = float(data)
                 elif t == 'bool':
@@ -327,8 +282,11 @@ class Event(Command):
                 elif t == 'object':
                     event_data[attr] = data
         if not self.is_idm:
-            event_data['event_id'] = Event.__get_uuid()
-        return BSON.encode({self.EVENT_TYPE: event_data})
+            event_data['event_id'] = Event.__get_uuid()            
+        event_data['plugin'] = plug_name
+        event_data['signature'] = sig_name
+        
+        return event_data
 
     def get(self, key, default_value):
         return self.event.get(key, default_value)

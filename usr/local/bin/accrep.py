@@ -28,7 +28,11 @@ dbshema='alienvault_siem'
 asset_dbschema='alienvault'
 # --- End of Database config
 def mystr (v,charset):
-    return str(v).decode(charset).replace(';',':').replace(',',':').strip()
+    v = '' if v is None else v
+    try :
+        return str(v).decode(charset).replace(';',':').replace(',',':').strip()
+    except :
+        return u'Ошибка декодирования строки'
 # ---- Init 
 
 period=1

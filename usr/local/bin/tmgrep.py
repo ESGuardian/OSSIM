@@ -17,7 +17,11 @@ from OSSIM_helper import get_db_connection_data
 dbshema='alienvault_siem'
 # --- End of Database config
 def mystr (v,charset):
-    return str(v).decode(charset).replace(';',':').replace(',',':').strip()
+    v = '' if v is None else v
+    try :
+        return str(v).decode(charset).replace(';',':').replace(',',':').strip()
+    except :
+        return u'Ошибка декодирования строки'
 # ---- Init 
 
 period=1
