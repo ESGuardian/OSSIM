@@ -263,8 +263,8 @@ class Event(Command):
                 # Now code the data
                 if attr == 'log' :
                     try :
-                        event_data[attr] = str(data).decode('utf8')
-                        event_data['binary_log'] = ""
+                        event_data[attr] = str(data).decode('utf8').replace('#011',' | ') if plug_name == 'tmg-web' else str(data).decode('utf8')
+                        event_data['binary_log'] = ""                        
                     except :
                         event_data[attr] = ""
                         event_data['binary_log'] = Binary(bytes(data))
