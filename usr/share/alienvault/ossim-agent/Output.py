@@ -36,6 +36,7 @@ import re
 import string
 import sys
 import uuid
+import time
 import MySQLdb
 from pymongo import MongoClient
 # from bson import BSON
@@ -332,7 +333,6 @@ class OutputESGuard(OutputPlugins):
         try :
             self.conn = MongoClient(mongodbURI)
             self.log_db = self.conn[self.dbschema]
-            self.event_coll = self.log_db['logger']
             self.activated = True
         except Exception, e:
             logger.error(": Error connecting to Mongodb %s" % (e))
@@ -341,21 +341,26 @@ class OutputESGuard(OutputPlugins):
     def event(self, e):          
         
         if self.conn is not None and e["event_type"] == "event" \
-                and self.activated:    
-
+                and self.activated:  
+            # do not log "syslog message too large" from OSSEC
+            if e['plugin_id'] == '7017' and e['plugin_sid'] == '1003' :
+                return
+                
             (plug_name,plug_sig) = self.plugins_db[int(e['plugin_id'])]
             plug_name = "" if plug_name is None else plug_name
+            
             
             if plug_sig is None:
                 sig_name = ""
             else :
                 sig_name = plug_sig[int(e['plugin_sid'])]
                 sig_name = "" if sig_name is None else sig_name         
-
+            
+            collection = "logger." + time.strftime("%Y%m%d")
             try :
-                self.event_coll.insert_one(e.to_esguard(plug_name,sig_name))
+                self.log_db[collection].insert_one(e.to_esguard(plug_name,sig_name))
             except Exception, e:                 
-                logger.error(": Error insert data to mongodb log_coll.  %s" % (e))  
+                logger.error(": Error insert data to mongodb log collection.  %s" % (e))  
                     
       
 

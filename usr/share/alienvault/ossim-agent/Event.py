@@ -261,7 +261,14 @@ class Event(Command):
             if self[attr]:
                 data = self[attr]
                 # Now code the data
-                if t == 'str':
+                if attr == 'log' :
+                    try :
+                        event_data[attr] = str(data).decode('utf8')
+                        event_data['binary_log'] = ""
+                    except :
+                        event_data[attr] = ""
+                        event_data['binary_log'] = Binary(bytes(data))
+                elif t == 'str':
                     event_data[attr] = str(data)
                 elif t == 'uuid':
                     event_data[attr] = UUID(data)
@@ -271,10 +278,7 @@ class Event(Command):
                 elif t == 'int64':
                     event_data[attr] = long(data)
                 elif t == 'binary':
-                    try :
-                        event_data[attr] = str(data).decode('utf8')
-                    except :
-                        event_data[attr] = Binary(bytes(data))
+                    event_data[attr] = Binary(bytes(data))
                 elif t == 'double':
                     event_data[attr] = float(data)
                 elif t == 'bool':
