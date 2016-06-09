@@ -356,7 +356,7 @@ class OutputESGuard(OutputPlugins):
                 sig_name = plug_sig[int(e['plugin_sid'])]
                 sig_name = "" if sig_name is None else sig_name         
             
-            collection = "logger." + time.strftime("%Y%m%d")
+            collection = "logger." + time.strftime("%Y%m%d",time.gmtime())
             try :
                 self.log_db[collection].insert_one(e.to_esguard(plug_name,sig_name))
             except Exception, e:                 
