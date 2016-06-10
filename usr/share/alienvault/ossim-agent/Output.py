@@ -39,6 +39,10 @@ import uuid
 import time
 import MySQLdb
 from pymongo import MongoClient
+from pymongo import ASCENDING
+from pymongo import DESCENDING
+from pymongo import TEXT
+
 # from bson import BSON
 # from bson.binary import Binary
 
@@ -359,6 +363,14 @@ class OutputESGuard(OutputPlugins):
             collection = "logger." + time.strftime("%Y%m%d",time.gmtime())
             try :
                 self.log_db[collection].insert_one(e.to_esguard(plug_name,sig_name))
+                if 'plugin_1' not in self.log_db[collection].index_information():
+                    self.log_db[collection].create_index( [('plugin',ASCENDING)] )
+                    self.log_db[collection].create_index( [('signature',ASCENDING)] )
+                    self.log_db[collection].create_index( [('dst_ip',ASCENDING)] )
+                    self.log_db[collection].create_index( [('src_ip',ASCENDING)] )
+                    self.log_db[collection].create_index( [('fdate',DESCENDING)] )
+                    self.log_db[collection].create_index( [('signature',TEXT),('log',TEXT)] )
+                
             except Exception, e:                 
                 logger.error(": Error insert data to mongodb log collection.  %s" % (e))  
                     

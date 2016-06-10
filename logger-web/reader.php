@@ -54,7 +54,7 @@ font-family:Verdana;
 <form action="reader.php?command=find" name="request" method="post"> 
 <td><select class="input" type="text" name="field">
 <?php 
-$fields = array("log","plugin","signature","src_ip","dst_ip", "username");
+$fields = array("text","log","plugin","signature","src_ip","dst_ip", "username");
 foreach ($fields as $field) {
     if ($field == $form_field) {
         echo '<option value="'. $field . '" selected>'. $field .'</option>';
@@ -66,7 +66,7 @@ foreach ($fields as $field) {
 </select></td>
 <td><select class="input" type="text" name="operator">
 <?php
-$operators = array("eq"=>"равно", "contain"=>"содержит");
+$operators = array("contain"=>"содержит", "eq"=>"равно");
 foreach ($operators as $key => $value) {
     if ($key == $form_operator) {
         echo '<option value="' . $key . '" selected>' . $value . '</option>';
@@ -111,8 +111,21 @@ try {
     $subcollection = str_replace("-","", $form_date);
     $collection = $conn->ossim->selectCollection("logger.$subcollection");
     $find = array();
-    
-    if ($form_operator == 'eq') {
+    if ($form_field == 'text') {
+        $textIndexPresent = False;
+        foreach ($collection->getIndexInfo() as $index){
+            if (in_array('signature_text_log_text',$index)){
+                $textIndexPresent = True;
+            }            
+        }
+        if ($textIndexPresent) {
+            $find = array('$text' => array('$search' => $form_value));
+        }else{            
+            echo '<fonnt size="2">В этой коллекции нет текстового индекса. Поиск будет выполнен по условию "log содержит ..."</font><br/>';
+            $form_field = 'log';
+            $find = array($form_field => array('$regex' => new MongoRegex("/.*$form_value.*/i")));
+        }        
+    }elseif ($form_operator == 'eq') {
         $find[$form_field] = $form_value;
     }elseif ($form_operator == 'contain') {
         $find = array($form_field => array('$regex' => new MongoRegex("/.*$form_value.*/i")));
