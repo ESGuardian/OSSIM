@@ -365,11 +365,14 @@ class OutputESGuard(OutputPlugins):
                 self.log_db[collection].insert_one(e.to_esguard(plug_name,sig_name))
                 if 'plugin_1' not in self.log_db[collection].index_information():
                     self.log_db[collection].create_index( [('plugin',ASCENDING)] )
+                    self.log_db[collection].create_index( [('plugin_id',ASCENDING)] )
+                    self.log_db[collection].create_index( [('plugin_sid',ASCENDING)] )
+                    self.log_db[collection].create_index( [('username',ASCENDING)] )
                     self.log_db[collection].create_index( [('signature',ASCENDING)] )
                     self.log_db[collection].create_index( [('dst_ip',ASCENDING)] )
                     self.log_db[collection].create_index( [('src_ip',ASCENDING)] )
                     self.log_db[collection].create_index( [('fdate',DESCENDING)] )
-                    self.log_db[collection].create_index( [('signature',TEXT),('log',TEXT)] )
+                    self.log_db[collection].create_index( [('log',TEXT)] )
                 
             except Exception, e:                 
                 logger.error(": Error insert data to mongodb log collection.  %s" % (e))  
