@@ -9,7 +9,11 @@ import codecs
 from datetime import date, timedelta
 
 def mystr (v):
-    return unicode(v).replace(';',':').replace(',',':').strip()
+    v = '' if v is None else v
+    try :
+        return unicode(v).replace(';',':').replace(',',':').strip()
+    except :
+        return u'Ошибка декодирования строки'
 
 (dbhost, dbuser, dbpass, dbschema, dbcharset)=('host-ip', 'username', 'userpass', 'oramon', 'utf8') # MySQL connection params for oramon db
 

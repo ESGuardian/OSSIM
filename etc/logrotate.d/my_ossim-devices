@@ -16,3 +16,12 @@
     copytruncate
     create 640 avapi alienvault
 }
+/var/log/fortigate.log {
+    daily
+    rotate 365
+    compress
+    missingok
+    notifempty
+    copytruncate
+    create 640 avapi alienvault
+}
