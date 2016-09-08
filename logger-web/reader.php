@@ -59,8 +59,10 @@ font-family:Verdana;
     }
     if (@$_POST['text_value']) {
         $form_text_value = @$_POST['text_value'];
+        $html_form_text_value = str_replace('"','&quot;',$form_text_value);
     } else {
         $form_text_value = "";
+        $html_form_text_value = $form_text_value;
     }
     if (@$_POST['date']) {
         $form_date = @$_POST['date'];
@@ -163,7 +165,7 @@ foreach ($text_operators as $key => $value) {
 ?>
 </select>
 <?php
-echo '<input type="text" style="width:600px; font-size:12" name="text_value" value="' . $form_text_value . '">';
+echo '<input type="text" style="width:600px; font-size:12" name="text_value" value="' . $html_form_text_value . '">';
 ?>
 </td></tr>
 <tr>
@@ -192,7 +194,7 @@ try {
     // open connection to MongoDB server
     $conn = new Mongo('mongodb://172.16.0.17', array(
         'username' => 'reader',
-        'password' => 'pssword',
+        'password' => 'password',
         'db'       => 'ossim'
     ));
 
