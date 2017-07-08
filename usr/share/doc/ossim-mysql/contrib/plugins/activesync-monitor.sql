@@ -1,4 +1,4 @@
--- user-logon-monitor
+-- activesync-monitor
 -- plugin_id: 9007
 
 DELETE FROM plugin WHERE id = "9007";

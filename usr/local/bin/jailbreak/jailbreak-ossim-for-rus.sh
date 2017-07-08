@@ -87,13 +87,13 @@ if [ ! -f /usr/local/bin/jailbreak/check_encoding.py ]; then
     fi
     cat > /usr/local/bin/jailbreak/check_encoding.py <<DELIM
 #! /usr/bin/python
-# -*- coding: latin1 -*-
+# -*- coding: utf-8 -*-
 import sys
 #import codecs
 import subprocess
 cfg_path = '/etc/ossim/agent/config.cfg'
 new_cfg_path = '/var/local/config.tmp'
-encoding_exceptions = {'wmi-monitor':'utf-8','zgate':'utf-8','oramon':'utf-8','fortigate':'utf-8'}
+encoding_exceptions = {'wmi-monitor':'utf8','zgate':'utf8','oramon':'utf8','fortigate':'utf8'}
 my_encoding = 'cp1251'
 with open (cfg_path,'r') as f:
    conf = f.read()
