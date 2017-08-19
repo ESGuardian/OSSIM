@@ -60,5 +60,12 @@ INSERT IGNORE INTO plugin_sid (plugin_id, sid, category_id, subcategory_id, clas
 (9101, 51, 10, 71, NULL, 'Kaspersky - Computer status changed', 2, 2),
 (9101, 52, 10, 71, NULL, 'Kaspersky - Error checking databases and program modules', 2, 2),
 (9101, 53, 10, 71, NULL, 'Kaspersky - Deleted', 2, 2),
+(9101, 54, 10, 71, NULL, 'Kaspersky - Active threat detected', 5, 5),
+(9101, 55, 10, 71, NULL, 'Kaspersky - A legitimate program is found that can be used by an attacker', 2, 2),
+(9101, 56, 10, 71, NULL, 'Kaspersky - The treatment of active infection is completed', 2, 2),
+(9101, 57, 10, 71, NULL, 'Kaspersky - Not cured', 5, 5),
+(9101, 58, 10, 71, NULL, 'Kaspersky - The procedure for treatment of active infection', 2, 2),
+(9101, 59, 10, 71, NULL, 'Kaspersky - New client computer found', 2, 2),
+(9101, 60, 10, 71, NULL, 'Kaspersky - The databases are obsolete', 5, 5),
 (9101, 9998, 10, 71, NULL, 'Kaspersky - Bad format log message', 2, 2),
 (9101, 9999, 10, 71, NULL, 'Kaspersky - Unparsed Event', 2, 2);
